@@ -1,0 +1,13 @@
+<svg width="720" height="220" viewBox="0 0 720 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="720" height="220" rx="24" fill="#0B1220"/>
+  <g transform="translate(34,34)">
+    <rect x="0" y="0" width="152" height="152" rx="26" fill="#111827" stroke="#1F2937" stroke-width="2"/>
+    <path d="M32 108V54C32 49.6 35.6 46 40 46H76C89.2 46 100 56.8 100 70V122C95.2 114.4 86.8 109.2 77.2 109.2H40C35.6 109.2 32 112.8 32 117.2V108Z" fill="#2DD4BF"/>
+    <path d="M120 108V54C120 49.6 116.4 46 112 46H76C62.8 46 52 56.8 52 70V122C56.8 114.4 65.2 109.2 74.8 109.2H112C116.4 109.2 120 112.8 120 117.2V108Z" fill="#22D3EE"/>
+    <path d="M44 121H108" stroke="#E5E7EB" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="124" cy="34" r="14" fill="#34D399"/>
+    <path d="M118 34L122.5 38.5L130.5 30.5" stroke="#064E3B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="220" y="98" fill="#F9FAFB" font-size="46" font-family="Inter, Segoe UI, Arial, sans-serif" font-weight="700">LumiSense Monitor</text>
+  <text x="220" y="138" fill="#9CA3AF" font-size="22" font-family="Inter, Segoe UI, Arial, sans-serif" font-weight="500">Smart Environment Intelligence Platform</text>
+</svg>
