@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import 'widgets/analytics_range_selector.dart';
-import 'widgets/buzzer_control.dart';
 import 'widgets/department_card.dart';
-import 'widgets/noise_chart.dart';
-import 'widgets/noise_frequency_chart.dart';
+import 'widgets/floor_plan_widget.dart';
 import 'widgets/quick_stats_row.dart';
 import '../../../core/domain/entities/zone_snapshot.dart';
 import '../../../core/domain/value_objects/noise_level.dart';
@@ -103,37 +101,9 @@ class DashboardPage extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          // Bottom section: Chart + Right panel
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Main chart
-                const Expanded(
-                  flex: 3,
-                  child: NoiseChart(),
-                ),
-
-                const SizedBox(width: 16),
-
-                // Right sidebar
-                Expanded(
-                  flex: 1,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        const BuzzerControl(),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          height: 320,
-                          child: const NoiseFrequencyChart(),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          // Bottom section: AI Floor Plan
+          const Expanded(
+            child: FloorPlanWidget(),
           ),
         ],
       ),

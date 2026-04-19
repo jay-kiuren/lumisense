@@ -39,22 +39,16 @@ class AppSidebar extends StatelessWidget {
             onTap: () => onSelected(0),
           ),
           _NavItem(
-            icon: LucideIcons.monitorSpeaker,
-            label: 'IT Department',
+            icon: LucideIcons.building2,
+            label: 'Department',
             isSelected: selectedIndex == 1,
             onTap: () => onSelected(1),
           ),
           _NavItem(
-            icon: LucideIcons.server,
-            label: 'CS Department',
+            icon: LucideIcons.barChart3,
+            label: 'Statistics Report',
             isSelected: selectedIndex == 2,
             onTap: () => onSelected(2),
-          ),
-          _NavItem(
-            icon: LucideIcons.cpu,
-            label: 'Engineering Department',
-            isSelected: selectedIndex == 3,
-            onTap: () => onSelected(3),
           ),
           const Spacer(),
           const Padding(
@@ -64,8 +58,8 @@ class AppSidebar extends StatelessWidget {
           _NavItem(
             icon: LucideIcons.settings,
             label: 'Settings',
-            isSelected: selectedIndex == 4,
-            onTap: () => onSelected(4),
+            isSelected: selectedIndex == 3,
+            onTap: () => onSelected(3),
           ),
           _NavItem(
             icon: LucideIcons.logOut,

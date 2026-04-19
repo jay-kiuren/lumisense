@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+
 import '../../../core/theme/app_colors.dart';
 import '../../dashboard/presentation/dashboard_page.dart';
-import '../../dashboard/presentation/widgets/department_detail_view.dart';
+import '../../department/presentation/department_page.dart';
+import '../../statistics/presentation/statistics_report_page.dart';
 import '../../settings/presentation/settings_page.dart';
 import 'widgets/sidebar.dart';
 
@@ -47,24 +48,10 @@ class _MainShellPageState extends State<MainShellPage> {
       case 0:
         return const DashboardPage();
       case 1:
-        return const DepartmentDetailView(
-          departmentName: 'IT Department',
-          departmentId: 'it',
-          icon: LucideIcons.monitorSpeaker,
-        );
+        return const DepartmentPage();
       case 2:
-        return const DepartmentDetailView(
-          departmentName: 'CS Department',
-          departmentId: 'cs',
-          icon: LucideIcons.server,
-        );
+        return const StatisticsReportPage();
       case 3:
-        return const DepartmentDetailView(
-          departmentName: 'Engineering Department',
-          departmentId: 'eng',
-          icon: LucideIcons.cpu,
-        );
-      case 4:
         return const SettingsPage();
       default:
         return const DashboardPage();
