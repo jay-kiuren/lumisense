@@ -106,48 +106,43 @@ class QuickStatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
-      children: [
-        Expanded(
-          child: QuickStatCard(
-            icon: LucideIcons.activity,
-            label: 'Avg Sound Level',
-            value: '48.3',
-            delta: '2.1 dB',
-            accentColor: AppColors.primary,
-            isDeltaPositive: false,
-          ),
+    return GridView.count(
+      crossAxisCount: 2,
+      crossAxisSpacing: 16,
+      mainAxisSpacing: 16,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      childAspectRatio: 1.5,
+      children: const [
+        QuickStatCard(
+          icon: LucideIcons.activity,
+          label: 'Avg Sound Level',
+          value: '48.3',
+          delta: '2.1 dB',
+          accentColor: AppColors.primary,
+          isDeltaPositive: false,
         ),
-        SizedBox(width: 16),
-        Expanded(
-          child: QuickStatCard(
-            icon: LucideIcons.thermometer,
-            label: 'Avg Temperature',
-            value: '24.8°',
-            delta: '0.5°',
-            accentColor: AppColors.success,
-            isDeltaPositive: true,
-          ),
+        QuickStatCard(
+          icon: LucideIcons.thermometer,
+          label: 'Avg Temperature',
+          value: '24.8°',
+          delta: '0.5°',
+          accentColor: AppColors.success,
+          isDeltaPositive: true,
         ),
-        SizedBox(width: 16),
-        Expanded(
-          child: QuickStatCard(
-            icon: LucideIcons.alertTriangle,
-            label: 'Active Alerts',
-            value: '3',
-            delta: '1',
-            accentColor: AppColors.error,
-            isDeltaPositive: true,
-          ),
+        QuickStatCard(
+          icon: LucideIcons.alertTriangle,
+          label: 'Active Alerts',
+          value: '3',
+          delta: '1',
+          accentColor: AppColors.error,
+          isDeltaPositive: true,
         ),
-        SizedBox(width: 16),
-        Expanded(
-          child: QuickStatCard(
-            icon: LucideIcons.radio,
-            label: 'Online Sensors',
-            value: '3/3',
-            accentColor: AppColors.success,
-          ),
+        QuickStatCard(
+          icon: LucideIcons.radio,
+          label: 'Online Sensors',
+          value: '3/3',
+          accentColor: AppColors.success,
         ),
       ],
     );

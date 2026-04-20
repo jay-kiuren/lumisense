@@ -76,34 +76,38 @@ class DashboardPage extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 28),
-
-          // Quick stats
-          const QuickStatsRow(),
-
-          const SizedBox(height: 24),
-
-          // Department cards
-          Row(
-            children: mockZones
-                .map(
-                  (z) => Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        right: z != mockZones.last ? 16.0 : 0,
-                      ),
-                      child: DepartmentCard(snapshot: z),
+          // Main Content
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Left side: AI Floor Plan (Vertically Full)
+                const Expanded(
+                  flex: 5,
+                  child: FloorPlanWidget(),
+                ),
+                const SizedBox(width: 24),
+                // Right side: Stats and Cards
+                Expanded(
+                  flex: 4,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Quick stats
+                        const QuickStatsRow(),
+                        const SizedBox(height: 24),
+                        // Department cards
+                        ...mockZones.map((z) => Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: DepartmentCard(snapshot: z),
+                        )),
+                      ],
                     ),
                   ),
-                )
-                .toList(),
-          ),
-
-          const SizedBox(height: 24),
-
-          // Bottom section: AI Floor Plan
-          const Expanded(
-            child: FloorPlanWidget(),
+                ),
+              ],
+            ),
           ),
         ],
       ),
