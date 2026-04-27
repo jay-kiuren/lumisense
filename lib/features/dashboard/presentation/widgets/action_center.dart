@@ -23,7 +23,6 @@ class _ActionCenterState extends State<ActionCenter> {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.surfaceHighlight, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

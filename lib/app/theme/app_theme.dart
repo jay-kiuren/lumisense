@@ -38,7 +38,8 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.textPrimary,
-          side: const BorderSide(color: AppColors.surfaceHighlight),
+          side: const BorderSide(color: Colors.transparent),
+          backgroundColor: AppColors.surface, // Give it a subtle background instead of outline
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           textStyle: AppTypography.textTheme.labelLarge,

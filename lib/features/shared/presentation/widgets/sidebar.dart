@@ -83,11 +83,7 @@ class AppSidebar extends StatelessWidget {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppColors.primary, AppColors.primaryMuted],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: AppColors.primary,
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
@@ -97,7 +93,7 @@ class AppSidebar extends StatelessWidget {
                 ),
               ],
             ),
-            child: const Icon(LucideIcons.activity, color: Colors.white, size: 18),
+            child: const Icon(Icons.waves_rounded, color: Colors.white, size: 20),
           ),
           const SizedBox(width: 12),
           const Text(

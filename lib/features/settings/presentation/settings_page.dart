@@ -371,12 +371,6 @@ class _SettingsPageState extends State<SettingsPage> {
                         ? AppColors.primary
                         : AppColors.background,
                     borderRadius: BorderRadius.circular(8),
-                    border: isSelected
-                        ? null
-                        : Border.all(
-                            color: AppColors.surfaceHighlight,
-                            width: 1,
-                          ),
                   ),
                   child: Text(
                     _patternNames[i],

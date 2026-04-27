@@ -2,31 +2,31 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // Backgrounds
-  static const Color background = Color(0xFF09090B); // Extremely dark gray/black
-  static const Color surface = Color(0xFF18181B);    // Slightly lighter for panels
-  static const Color surfaceHighlight = Color(0xFF27272A); // Hover/border color
+  static const Color background = Color(0xFF000000); // True Black (Cursor/Apple)
+  static const Color surface = Color(0xFF141415);    // Very subtle surface
+  static const Color surfaceHighlight = Color(0xFF262628); // Subtle borders (if used)
 
   // Text
-  static const Color textPrimary = Color(0xFFFAFAFA); // Off-white
-  static const Color textSecondary = Color(0xFFA1A1AA); // Muted gray
-  static const Color textTertiary = Color(0xFF71717A); // Darker gray
+  static const Color textPrimary = Color(0xFFFFFFFF); // Pure white
+  static const Color textSecondary = Color(0xFF8E8E93); // Apple System Gray
+  static const Color textTertiary = Color(0xFF636366); // Darker Apple Gray
 
   // Accents & States
-  static const Color primary = Color(0xFF3B82F6); // Blue accent
-  static const Color primaryMuted = Color(0xFF1D4ED8); // Darker blue
+  static const Color primary = Color(0xFF0A84FF); // Apple System Blue
+  static const Color primaryMuted = Color(0xFF0040DD); // Darker blue
 
-  static const Color success = Color(0xFF10B981); // Emerald green (Quiet)
-  static const Color warning = Color(0xFFF59E0B); // Amber (Moderate noise)
-  static const Color error = Color(0xFFEF4444);   // Red (Alert/Loud)
-  static const Color offline = Color(0xFF52525B); // Gray out
+  static const Color success = Color(0xFF32D74B); // Apple Green
+  static const Color warning = Color(0xFFFF9F0A); // Apple Orange
+  static const Color error = Color(0xFFFF453A);   // Apple Red
+  static const Color offline = Color(0xFF3A3A3C); // Dark Gray
 
   // Chart Gradients
   static const List<Color> chartGradientAm = [
-    Color(0xFF3B82F6),
-    Color(0x003B82F6),
+    Color(0xFF0A84FF),
+    Color(0x000A84FF),
   ];
   static const List<Color> chartGradientPm = [
-    Color(0xFF10B981),
-    Color(0x0010B981),
+    Color(0xFF32D74B),
+    Color(0x0032D74B),
   ];
 }

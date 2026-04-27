@@ -11,7 +11,6 @@ class FloorPlanWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.surfaceHighlight, width: 1),
       ),
       child: Stack(
         children: [
@@ -58,7 +57,6 @@ class FloorPlanWidget extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AppColors.background,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.surfaceHighlight),
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app/theme/app_theme.dart';
-import 'features/shared/presentation/main_shell_page.dart';
+import 'features/splash/presentation/splash_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,7 +17,7 @@ class SmartLibraryApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'LumiSense Monitor',
       theme: AppTheme.dark(),
-      home: const MainShellPage(),
+      home: const SplashPage(),
     );
   }
 }
