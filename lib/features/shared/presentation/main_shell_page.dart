@@ -21,24 +21,41 @@ class _MainShellPageState extends State<MainShellPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Row(
-        children: [
-          AppSidebar(
-            selectedIndex: _selectedIndex,
-            onSelected: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
-          ),
-          Container(
-            width: 1,
-            color: AppColors.surfaceHighlight,
-          ),
-          Expanded(
-            child: _buildContent(),
-          ),
-        ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final double effectiveWidth = constraints.maxWidth > 1280 ? constraints.maxWidth : 1280;
+          final double effectiveHeight = constraints.maxHeight > 800 ? constraints.maxHeight : 800;
+
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: SizedBox(
+                width: effectiveWidth,
+                height: effectiveHeight,
+                child: Row(
+                  children: [
+                    AppSidebar(
+                      selectedIndex: _selectedIndex,
+                      onSelected: (index) {
+                        setState(() {
+                          _selectedIndex = index;
+                        });
+                      },
+                    ),
+                    Container(
+                      width: 1,
+                      color: AppColors.surfaceHighlight,
+                    ),
+                    Expanded(
+                      child: _buildContent(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
