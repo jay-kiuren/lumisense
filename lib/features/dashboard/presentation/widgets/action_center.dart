@@ -39,19 +39,24 @@ class _ActionCenterState extends State<ActionCenter> {
                 child: const Icon(LucideIcons.shieldAlert, size: 18, color: AppColors.warning),
               ),
               const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Alarm System Status',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 2),
-                  const Text(
-                    'Manage automated buzzer triggers',
-                    style: TextStyle(fontSize: 12, color: AppColors.textTertiary),
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Alarm System Status',
+                      style: Theme.of(context).textTheme.titleMedium,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    const Text(
+                      'Manage automated buzzer triggers',
+                      style: TextStyle(fontSize: 12, color: AppColors.textTertiary),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

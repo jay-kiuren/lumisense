@@ -77,40 +77,68 @@ class DashboardPage extends StatelessWidget {
             ],
           ),
 
-          // Main Content
+          // Main Content Responsive Layout
           Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Left side: AI Floor Plan (Vertically Full)
-                const Expanded(
-                  flex: 5,
-                  child: FloorPlanWidget(),
-                ),
-                const SizedBox(width: 24),
-                // Right side: Stats and Cards
-                Expanded(
-                  flex: 4,
-                  child: SingleChildScrollView(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                if (constraints.maxWidth < 900) {
+                  // Mobile/Tablet Vertical Layout
+                  return SingleChildScrollView(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Quick stats
+                        // Stats and Cards on top for mobile
                         const QuickStatsRow(),
                         const SizedBox(height: 24),
-                        // Action Center (Alarm Controls)
                         const ActionCenter(),
                         const SizedBox(height: 24),
-                        // Department cards
                         ...mockZones.map((z) => Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: DepartmentCard(snapshot: z),
-                        )),
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: DepartmentCard(snapshot: z),
+                            )),
+                        // AI Floor Plan at the bottom
+                        const SizedBox(height: 16),
+                        const SizedBox(
+                          height: 400, // Fixed height when in column
+                          child: FloorPlanWidget(),
+                        ),
                       ],
                     ),
-                  ),
-                ),
-              ],
+                  );
+                }
+
+                // Desktop Horizontal Layout
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Left side: AI Floor Plan
+                    const Expanded(
+                      flex: 5,
+                      child: FloorPlanWidget(),
+                    ),
+                    const SizedBox(width: 24),
+                    // Right side: Stats and Cards
+                    Expanded(
+                      flex: 4,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const QuickStatsRow(),
+                            const SizedBox(height: 24),
+                            const ActionCenter(),
+                            const SizedBox(height: 24),
+                            ...mockZones.map((z) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                  child: DepartmentCard(snapshot: z),
+                                )),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ],
