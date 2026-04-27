@@ -19,7 +19,9 @@ class _StatisticsReportPageState extends State<StatisticsReportPage> {
     20,
     (i) => _LogEntry(
       id: 'LOG-${1000 + i}',
-      timestamp: DateTime.now().subtract(Duration(minutes: i * 37, seconds: i * 13)),
+      timestamp: DateTime.now().subtract(
+        Duration(minutes: i * 37, seconds: i * 13),
+      ),
       department: ['IT', 'CS', 'Engineering'][i % 3],
       event: [
         'Noise level exceeded 72 dB (Critical)',
@@ -29,7 +31,14 @@ class _StatisticsReportPageState extends State<StatisticsReportPage> {
         'Sound classification: chair_dragging',
         'Environmental summary exported',
       ][i % 6],
-      severity: [_Severity.critical, _Severity.warning, _Severity.critical, _Severity.info, _Severity.warning, _Severity.info][i % 6],
+      severity: [
+        _Severity.critical,
+        _Severity.warning,
+        _Severity.critical,
+        _Severity.info,
+        _Severity.warning,
+        _Severity.info,
+      ][i % 6],
     ),
   );
 
@@ -46,18 +55,26 @@ class _StatisticsReportPageState extends State<StatisticsReportPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Statistics Report', style: Theme.of(context).textTheme.displayMedium),
+                  Text(
+                    'Statistics Report',
+                    style: Theme.of(context).textTheme.displayMedium,
+                  ),
                   const SizedBox(height: 4),
                   Text(
                     'Immutable audit logs · Only Super Admin can delete entries',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textTertiary),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textTertiary,
+                    ),
                   ),
                 ],
               ),
               const Spacer(),
               // Role badge
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: _currentRole == UserRole.superAdmin
                       ? AppColors.primary.withOpacity(0.1)
@@ -68,17 +85,25 @@ class _StatisticsReportPageState extends State<StatisticsReportPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      _currentRole == UserRole.superAdmin ? LucideIcons.shieldCheck : LucideIcons.shield,
+                      _currentRole == UserRole.superAdmin
+                          ? LucideIcons.shieldCheck
+                          : LucideIcons.shield,
                       size: 14,
-                      color: _currentRole == UserRole.superAdmin ? AppColors.primary : AppColors.textSecondary,
+                      color: _currentRole == UserRole.superAdmin
+                          ? AppColors.primary
+                          : AppColors.textSecondary,
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      _currentRole == UserRole.superAdmin ? 'Super Admin' : 'Admin',
+                      _currentRole == UserRole.superAdmin
+                          ? 'Super Admin'
+                          : 'Admin',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: _currentRole == UserRole.superAdmin ? AppColors.primary : AppColors.textSecondary,
+                        color: _currentRole == UserRole.superAdmin
+                            ? AppColors.primary
+                            : AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -114,7 +139,8 @@ class _StatisticsReportPageState extends State<StatisticsReportPage> {
                 _headerCell('Department', flex: 1),
                 _headerCell('Event', flex: 4),
                 _headerCell('Severity', flex: 1),
-                if (_currentRole == UserRole.superAdmin) const SizedBox(width: 44),
+                if (_currentRole == UserRole.superAdmin)
+                  const SizedBox(width: 44),
               ],
             ),
           ),
@@ -132,7 +158,7 @@ class _StatisticsReportPageState extends State<StatisticsReportPage> {
               child: ListView.separated(
                 padding: EdgeInsets.zero,
                 itemCount: _logs.length,
-                separatorBuilder: (_, __) => Divider(
+                separatorBuilder: (_, _) => Divider(
                   color: AppColors.surfaceHighlight.withOpacity(0.4),
                   height: 1,
                 ),
@@ -169,9 +195,20 @@ class _StatisticsReportPageState extends State<StatisticsReportPage> {
           child: const Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(LucideIcons.download, size: 16, color: AppColors.textSecondary),
+              Icon(
+                LucideIcons.download,
+                size: 16,
+                color: AppColors.textSecondary,
+              ),
               SizedBox(width: 8),
-              Text('Export', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+              Text(
+                'Export',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textSecondary,
+                ),
+              ),
             ],
           ),
         ),
@@ -182,13 +219,35 @@ class _StatisticsReportPageState extends State<StatisticsReportPage> {
   Widget _buildSummaryRow() {
     return Row(
       children: [
-        _SummaryStat(icon: LucideIcons.fileText, label: 'Total Logs', value: '${_logs.length}', color: AppColors.primary),
+        _SummaryStat(
+          icon: LucideIcons.fileText,
+          label: 'Total Logs',
+          value: '${_logs.length}',
+          color: AppColors.primary,
+        ),
         const SizedBox(width: 16),
-        _SummaryStat(icon: LucideIcons.alertTriangle, label: 'Critical Events', value: '${_logs.where((l) => l.severity == _Severity.critical).length}', color: AppColors.error),
+        _SummaryStat(
+          icon: LucideIcons.alertTriangle,
+          label: 'Critical Events',
+          value:
+              '${_logs.where((l) => l.severity == _Severity.critical).length}',
+          color: AppColors.error,
+        ),
         const SizedBox(width: 16),
-        _SummaryStat(icon: LucideIcons.alertCircle, label: 'Warnings', value: '${_logs.where((l) => l.severity == _Severity.warning).length}', color: AppColors.warning),
+        _SummaryStat(
+          icon: LucideIcons.alertCircle,
+          label: 'Warnings',
+          value:
+              '${_logs.where((l) => l.severity == _Severity.warning).length}',
+          color: AppColors.warning,
+        ),
         const SizedBox(width: 16),
-        _SummaryStat(icon: LucideIcons.info, label: 'Info', value: '${_logs.where((l) => l.severity == _Severity.info).length}', color: AppColors.textSecondary),
+        _SummaryStat(
+          icon: LucideIcons.info,
+          label: 'Info',
+          value: '${_logs.where((l) => l.severity == _Severity.info).length}',
+          color: AppColors.textSecondary,
+        ),
       ],
     );
   }
@@ -198,7 +257,12 @@ class _StatisticsReportPageState extends State<StatisticsReportPage> {
       flex: flex,
       child: Text(
         label.toUpperCase(),
-        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textTertiary, letterSpacing: 0.5),
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textTertiary,
+          letterSpacing: 0.5,
+        ),
       ),
     );
   }
@@ -215,7 +279,13 @@ class _LogEntry {
   final String event;
   final _Severity severity;
 
-  _LogEntry({required this.id, required this.timestamp, required this.department, required this.event, required this.severity});
+  _LogEntry({
+    required this.id,
+    required this.timestamp,
+    required this.department,
+    required this.event,
+    required this.severity,
+  });
 }
 
 // --- Widgets ---
@@ -225,7 +295,11 @@ class _LogRow extends StatefulWidget {
   final bool canDelete;
   final VoidCallback onDelete;
 
-  const _LogRow({required this.log, required this.canDelete, required this.onDelete});
+  const _LogRow({
+    required this.log,
+    required this.canDelete,
+    required this.onDelete,
+  });
 
   @override
   State<_LogRow> createState() => _LogRowState();
@@ -241,7 +315,9 @@ class _LogRowState extends State<_LogRow> {
       onExit: (_) => setState(() => _hovered = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        color: _hovered ? AppColors.surfaceHighlight.withOpacity(0.3) : Colors.transparent,
+        color: _hovered
+            ? AppColors.surfaceHighlight.withOpacity(0.3)
+            : Colors.transparent,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         child: Row(
           children: [
@@ -260,7 +336,12 @@ class _LogRowState extends State<_LogRow> {
               flex: 1,
               child: Text(
                 widget.log.id,
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary, fontFamily: 'monospace'),
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                  fontFamily: 'monospace',
+                ),
               ),
             ),
             // Timestamp
@@ -268,18 +349,34 @@ class _LogRowState extends State<_LogRow> {
               flex: 2,
               child: Text(
                 _formatTime(widget.log.timestamp),
-                style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                ),
               ),
             ),
             // Department
             Expanded(
               flex: 1,
-              child: Text(widget.log.department, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+              child: Text(
+                widget.log.department,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                ),
+              ),
             ),
             // Event
             Expanded(
               flex: 4,
-              child: Text(widget.log.event, style: const TextStyle(fontSize: 13, color: AppColors.textPrimary), overflow: TextOverflow.ellipsis),
+              child: Text(
+                widget.log.event,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textPrimary,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             // Severity badge
             Expanded(
@@ -293,7 +390,11 @@ class _LogRowState extends State<_LogRow> {
                 child: _hovered
                     ? IconButton(
                         onPressed: () => _confirmDelete(context),
-                        icon: const Icon(LucideIcons.trash2, size: 16, color: AppColors.error),
+                        icon: const Icon(
+                          LucideIcons.trash2,
+                          size: 16,
+                          color: AppColors.error,
+                        ),
                         splashRadius: 16,
                         tooltip: 'Delete (Super Admin)',
                       )
@@ -323,15 +424,30 @@ class _LogRowState extends State<_LogRow> {
                   color: AppColors.error.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(LucideIcons.alertTriangle, color: AppColors.error, size: 24),
+                child: const Icon(
+                  LucideIcons.alertTriangle,
+                  color: AppColors.error,
+                  size: 24,
+                ),
               ),
               const SizedBox(height: 20),
-              const Text('Delete Log Entry', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+              const Text(
+                'Delete Log Entry',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
               const SizedBox(height: 8),
               Text(
                 'Are you sure you want to delete ${widget.log.id}? This action cannot be undone.',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.5),
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                  height: 1.5,
+                ),
               ),
               const SizedBox(height: 24),
               Row(
@@ -343,9 +459,14 @@ class _LogRowState extends State<_LogRow> {
                         backgroundColor: AppColors.surfaceHighlight,
                         foregroundColor: AppColors.textPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                      child: const Text('Cancel', style: TextStyle(fontWeight: FontWeight.w600)),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -359,9 +480,14 @@ class _LogRowState extends State<_LogRow> {
                         backgroundColor: AppColors.error,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                      child: const Text('Delete', style: TextStyle(fontWeight: FontWeight.w600)),
+                      child: const Text(
+                        'Delete',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
                     ),
                   ),
                 ],
@@ -403,13 +529,13 @@ class _SeverityBadge extends StatelessWidget {
     final color = severity == _Severity.critical
         ? AppColors.error
         : severity == _Severity.warning
-            ? AppColors.warning
-            : AppColors.textTertiary;
+        ? AppColors.warning
+        : AppColors.textTertiary;
     final label = severity == _Severity.critical
         ? 'Critical'
         : severity == _Severity.warning
-            ? 'Warning'
-            : 'Info';
+        ? 'Warning'
+        : 'Info';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -417,7 +543,14 @@ class _SeverityBadge extends StatelessWidget {
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(5),
       ),
-      child: Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color)),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: color,
+        ),
+      ),
     );
   }
 }
@@ -428,7 +561,12 @@ class _SummaryStat extends StatelessWidget {
   final String value;
   final Color color;
 
-  const _SummaryStat({required this.icon, required this.label, required this.value, required this.color});
+  const _SummaryStat({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -454,9 +592,24 @@ class _SummaryStat extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color, letterSpacing: -0.5)),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                    letterSpacing: -0.5,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textTertiary, fontWeight: FontWeight.w500)),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textTertiary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ],
             ),
           ],

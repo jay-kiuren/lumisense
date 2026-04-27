@@ -4,6 +4,7 @@ import 'widgets/analytics_range_selector.dart';
 import 'widgets/department_card.dart';
 import 'widgets/floor_plan_widget.dart';
 import 'widgets/quick_stats_row.dart';
+import 'widgets/action_center.dart';
 import '../../../core/domain/entities/zone_snapshot.dart';
 import '../../../core/domain/value_objects/noise_level.dart';
 
@@ -96,6 +97,9 @@ class DashboardPage extends StatelessWidget {
                       children: [
                         // Quick stats
                         const QuickStatsRow(),
+                        const SizedBox(height: 24),
+                        // Action Center (Alarm Controls)
+                        const ActionCenter(),
                         const SizedBox(height: 24),
                         // Department cards
                         ...mockZones.map((z) => Padding(
