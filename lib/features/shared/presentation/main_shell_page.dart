@@ -16,6 +16,7 @@ class MainShellPage extends StatefulWidget {
 
 class _MainShellPageState extends State<MainShellPage> {
   int _selectedIndex = 0;
+  bool _isCollapsed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +38,12 @@ class _MainShellPageState extends State<MainShellPage> {
                   children: [
                     AppSidebar(
                       selectedIndex: _selectedIndex,
+                      isCollapsed: _isCollapsed,
+                      onToggleCollapse: () {
+                        setState(() {
+                          _isCollapsed = !_isCollapsed;
+                        });
+                      },
                       onSelected: (index) {
                         setState(() {
                           _selectedIndex = index;

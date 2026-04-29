@@ -1,0 +1,17 @@
+Avg,Peak,Min,RMS,Label
+2.3,1023,0,45.2,Background Noise
+0.3,7,0,0.6,Background Noise
+86.8,31743,0,1504.4,Clap
+88.3,32767,0,1546.6,Clap
+45.2,22000,0,980.0,Laughter
+55.0,28000,0,1200.0,Laughter
+72.1,30000,0,1350.0,Object Drop
+40.5,20000,0,900.0,Object Drop
+15.0,8000,0,350.0,Ring Phone
+25.0,12000,0,550.0,Ring Phone
+20.0,10000,0,450.0,Notification
+30.0,14000,0,650.0,Notification
+110.0,32767,0,3000.0,Table Dragging
+70.0,30000,0,2100.0,Table Dragging
+18.0,9000,0,400.0,Talking
+22.0,11000,0,500.0,Talking

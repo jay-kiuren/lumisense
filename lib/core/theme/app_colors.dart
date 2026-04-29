@@ -12,8 +12,8 @@ class AppColors {
   static const Color textTertiary = Color(0xFF636366); // Darker Apple Gray
 
   // Accents & States
-  static const Color primary = Color(0xFF0A84FF); // Apple System Blue
-  static const Color primaryMuted = Color(0xFF0040DD); // Darker blue
+  static const Color primary = Color(0xFFFFFFFF); // White (Cursor style)
+  static const Color primaryMuted = Color(0xFFA1A1AA); // Grey
 
   static const Color success = Color(0xFF32D74B); // Apple Green
   static const Color warning = Color(0xFFFF9F0A); // Apple Orange
@@ -22,8 +22,8 @@ class AppColors {
 
   // Chart Gradients
   static const List<Color> chartGradientAm = [
-    Color(0xFF0A84FF),
-    Color(0x000A84FF),
+    Color(0xFFFFFFFF),
+    Color(0x00FFFFFF),
   ];
   static const List<Color> chartGradientPm = [
     Color(0xFF32D74B),

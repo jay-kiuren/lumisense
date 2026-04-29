@@ -77,7 +77,7 @@ class _StatisticsReportPageState extends State<StatisticsReportPage> {
                 ),
                 decoration: BoxDecoration(
                   color: _currentRole == UserRole.superAdmin
-                      ? AppColors.primary.withOpacity(0.1)
+                      ? AppColors.primary.withValues(alpha: 0.1)
                       : AppColors.surfaceHighlight,
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -159,7 +159,7 @@ class _StatisticsReportPageState extends State<StatisticsReportPage> {
                 padding: EdgeInsets.zero,
                 itemCount: _logs.length,
                 separatorBuilder: (_, _) => Divider(
-                  color: AppColors.surfaceHighlight.withOpacity(0.4),
+                  color: AppColors.surfaceHighlight.withValues(alpha: 0.4),
                   height: 1,
                 ),
                 itemBuilder: (context, index) {
@@ -316,7 +316,7 @@ class _LogRowState extends State<_LogRow> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         color: _hovered
-            ? AppColors.surfaceHighlight.withOpacity(0.3)
+            ? AppColors.surfaceHighlight.withValues(alpha: 0.3)
             : Colors.transparent,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         child: Row(
@@ -421,7 +421,7 @@ class _LogRowState extends State<_LogRow> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppColors.error.withOpacity(0.1),
+                  color: AppColors.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -540,7 +540,7 @@ class _SeverityBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(5),
       ),
       child: Text(
@@ -583,7 +583,7 @@ class _SummaryStat extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, size: 20, color: color),

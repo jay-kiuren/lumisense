@@ -32,14 +32,14 @@ class _DepartmentCardState extends State<DepartmentCard> {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: _isHovered
-                ? status.color.withOpacity(0.3)
+                ? status.color.withValues(alpha: 0.3)
                 : Colors.transparent,
             width: 1,
           ),
           boxShadow: _isHovered
               ? [
                   BoxShadow(
-                    color: status.color.withOpacity(0.06),
+                    color: status.color.withValues(alpha: 0.06),
                     blurRadius: 24,
                     offset: const Offset(0, 8),
                   ),
@@ -56,7 +56,7 @@ class _DepartmentCardState extends State<DepartmentCard> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: status.color.withOpacity(0.1),
+                    color: status.color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -183,7 +183,7 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(

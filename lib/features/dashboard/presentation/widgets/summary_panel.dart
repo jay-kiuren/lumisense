@@ -109,7 +109,7 @@ class _SummaryRow extends StatelessWidget {
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.08),
+                  color: color.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(icon, size: 16, color: color),
@@ -138,7 +138,7 @@ class _SummaryRow extends StatelessWidget {
         ),
         if (!isLast)
           Divider(
-            color: AppColors.surfaceHighlight.withOpacity(0.5),
+            color: AppColors.surfaceHighlight.withValues(alpha: 0.5),
             height: 1,
           ),
       ],

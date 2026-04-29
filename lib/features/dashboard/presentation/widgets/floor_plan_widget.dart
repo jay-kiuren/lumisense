@@ -29,7 +29,7 @@ class FloorPlanWidget extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(LucideIcons.map, size: 48, color: AppColors.primary),
@@ -87,7 +87,7 @@ class _GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.surfaceHighlight.withOpacity(0.3)
+      ..color = AppColors.surfaceHighlight.withValues(alpha: 0.3)
       ..strokeWidth = 1;
 
     const spacing = 40.0;

@@ -3,73 +3,118 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class AppSidebar extends StatelessWidget {
+  static const double _expandedWidth = 260;
+  static const double _collapsedWidth = 80;
+
   final int selectedIndex;
+  final bool isCollapsed;
+  final VoidCallback onToggleCollapse;
   final ValueChanged<int> onSelected;
 
   const AppSidebar({
     super.key,
     required this.selectedIndex,
+    required this.isCollapsed,
+    required this.onToggleCollapse,
     required this.onSelected,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 260,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeInOut,
+      width: isCollapsed ? _collapsedWidth : _expandedWidth,
       color: AppColors.background,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildLogo(),
-          const SizedBox(height: 32),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              'MENU',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppColors.textTertiary,
+      child: ClipRect(
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: SizedBox(
+            width: _expandedWidth,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildLogo(),
+                const SizedBox(height: 32),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 150),
+                          opacity: isCollapsed ? 0 : 1,
+                          child: Text(
+                            'MENU',
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  color: AppColors.textTertiary,
+                                ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: onToggleCollapse,
+                        icon: Icon(
+                          isCollapsed ? LucideIcons.panelLeftOpen : LucideIcons.panelLeftClose,
+                          color: AppColors.textTertiary,
+                          size: 18,
+                        ),
+                        tooltip: isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar',
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        splashRadius: 20,
+                      ),
+                    ],
                   ),
+                ),
+                const SizedBox(height: 12),
+                _NavItem(
+                  icon: LucideIcons.layoutDashboard,
+                  label: 'Home',
+                  isSelected: selectedIndex == 0,
+                  isCollapsed: isCollapsed,
+                  onTap: () => onSelected(0),
+                ),
+                _NavItem(
+                  icon: LucideIcons.building2,
+                  label: 'Department',
+                  isSelected: selectedIndex == 1,
+                  isCollapsed: isCollapsed,
+                  onTap: () => onSelected(1),
+                ),
+                _NavItem(
+                  icon: LucideIcons.barChart3,
+                  label: 'Statistics Report',
+                  isSelected: selectedIndex == 2,
+                  isCollapsed: isCollapsed,
+                  onTap: () => onSelected(2),
+                ),
+                const Spacer(),
+                const Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: Divider(color: AppColors.surfaceHighlight),
+                ),
+                _NavItem(
+                  icon: LucideIcons.settings,
+                  label: 'Settings',
+                  isSelected: selectedIndex == 3,
+                  isCollapsed: isCollapsed,
+                  onTap: () => onSelected(3),
+                ),
+                _NavItem(
+                  icon: LucideIcons.logOut,
+                  label: 'Log out',
+                  isSelected: false,
+                  isCollapsed: isCollapsed,
+                  onTap: () {},
+                  isDanger: true,
+                ),
+                const SizedBox(height: 24),
+              ],
             ),
           ),
-          const SizedBox(height: 12),
-          _NavItem(
-            icon: LucideIcons.layoutDashboard,
-            label: 'Home',
-            isSelected: selectedIndex == 0,
-            onTap: () => onSelected(0),
-          ),
-          _NavItem(
-            icon: LucideIcons.building2,
-            label: 'Department',
-            isSelected: selectedIndex == 1,
-            onTap: () => onSelected(1),
-          ),
-          _NavItem(
-            icon: LucideIcons.barChart3,
-            label: 'Statistics Report',
-            isSelected: selectedIndex == 2,
-            onTap: () => onSelected(2),
-          ),
-          const Spacer(),
-          const Padding(
-            padding: EdgeInsets.all(24.0),
-            child: Divider(color: AppColors.surfaceHighlight),
-          ),
-          _NavItem(
-            icon: LucideIcons.settings,
-            label: 'Settings',
-            isSelected: selectedIndex == 3,
-            onTap: () => onSelected(3),
-          ),
-          _NavItem(
-            icon: LucideIcons.logOut,
-            label: 'Log out',
-            isSelected: false,
-            onTap: () {},
-            isDanger: true,
-          ),
-          const SizedBox(height: 24),
-        ],
+        ),
       ),
     );
   }
@@ -83,26 +128,33 @@ class AppSidebar extends StatelessWidget {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: AppColors.primary,
+              color: AppColors.textPrimary, // White background
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.3),
+                  color: AppColors.textPrimary.withValues(alpha: 0.1),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
               ],
             ),
-            child: const Icon(Icons.waves_rounded, color: Colors.white, size: 20),
+            child: const Icon(LucideIcons.hexagon, color: AppColors.background, size: 20), // Dark icon
           ),
           const SizedBox(width: 12),
-          const Text(
-            'Lumisense',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-              letterSpacing: -0.5,
+          Expanded(
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 150),
+              opacity: isCollapsed ? 0 : 1,
+              child: const Text(
+                'Lumisense',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                  letterSpacing: -0.5,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
         ],
@@ -115,6 +167,7 @@ class _NavItem extends StatefulWidget {
   final IconData icon;
   final String label;
   final bool isSelected;
+  final bool isCollapsed;
   final VoidCallback onTap;
   final bool isDanger;
 
@@ -122,6 +175,7 @@ class _NavItem extends StatefulWidget {
     required this.icon,
     required this.label,
     required this.isSelected,
+    required this.isCollapsed,
     required this.onTap,
     this.isDanger = false,
   });
@@ -146,7 +200,7 @@ class _NavItemState extends State<_NavItem> {
     final bgColor = widget.isSelected
         ? AppColors.surfaceHighlight
         : _isHovered
-            ? AppColors.surfaceHighlight.withOpacity(0.5)
+            ? AppColors.surfaceHighlight.withValues(alpha: 0.5)
             : Colors.transparent;
 
     return Padding(
@@ -169,12 +223,19 @@ class _NavItemState extends State<_NavItem> {
               children: [
                 Icon(widget.icon, size: 20, color: color),
                 const SizedBox(width: 16),
-                Text(
-                  widget.label,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: color,
-                        fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.w500,
-                      ),
+                Expanded(
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 150),
+                    opacity: widget.isCollapsed ? 0 : 1,
+                    child: Text(
+                      widget.label,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: color,
+                            fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.w500,
+                          ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ),
               ],
             ),

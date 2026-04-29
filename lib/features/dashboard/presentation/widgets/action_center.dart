@@ -32,10 +32,14 @@ class _ActionCenterState extends State<ActionCenter> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.warning.withOpacity(0.1),
+                  color: AppColors.warning.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(LucideIcons.shieldAlert, size: 18, color: AppColors.warning),
+                child: const Icon(
+                  LucideIcons.shieldAlert,
+                  size: 18,
+                  color: AppColors.warning,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -50,7 +54,10 @@ class _ActionCenterState extends State<ActionCenter> {
                     const SizedBox(height: 2),
                     const Text(
                       'Manage automated buzzer triggers',
-                      style: TextStyle(fontSize: 12, color: AppColors.textTertiary),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textTertiary,
+                      ),
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
                     ),
@@ -76,7 +83,10 @@ class _ActionCenterState extends State<ActionCenter> {
             },
             isGlobal: true,
           ),
-          Divider(color: AppColors.surfaceHighlight.withOpacity(0.5), height: 24),
+          Divider(
+            color: AppColors.surfaceHighlight.withValues(alpha: 0.5),
+            height: 24,
+          ),
           _buildOverrideSwitch(
             icon: LucideIcons.monitorSpeaker,
             label: 'IT Zone',
@@ -129,7 +139,8 @@ class _ActionCenterState extends State<ActionCenter> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: (isMuted ? AppColors.warning : AppColors.success).withOpacity(0.1),
+            color: (isMuted ? AppColors.warning : AppColors.success)
+                .withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Row(
@@ -161,7 +172,7 @@ class _ActionCenterState extends State<ActionCenter> {
           child: Switch(
             value: isMuted,
             onChanged: onChanged,
-            activeColor: AppColors.textPrimary,
+            activeThumbColor: AppColors.textPrimary,
             activeTrackColor: AppColors.warning,
             inactiveThumbColor: AppColors.textSecondary,
             inactiveTrackColor: AppColors.surfaceHighlight,

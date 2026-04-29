@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import '../../shared/presentation/main_shell_page.dart';
 import '../../../core/theme/app_colors.dart';
 
@@ -80,11 +81,11 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
+                        color: AppColors.textPrimary,
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withOpacity(0.3),
+                            color: AppColors.textPrimary.withValues(alpha: 0.15),
                             blurRadius: 40,
                             offset: const Offset(0, 10),
                           ),
@@ -92,9 +93,9 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                       ),
                       child: const Center(
                         child: Icon(
-                          Icons.waves_rounded,
+                          LucideIcons.hexagon,
                           size: 40,
-                          color: Colors.white,
+                          color: AppColors.background,
                         ),
                       ),
                     ),

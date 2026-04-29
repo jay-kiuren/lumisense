@@ -172,7 +172,7 @@ class _DepartmentPageState extends State<DepartmentPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: AppColors.success.withOpacity(0.1),
+                  color: AppColors.success.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: const Row(
@@ -202,7 +202,7 @@ class _DepartmentPageState extends State<DepartmentPage> {
                   drawVerticalLine: false,
                   horizontalInterval: 20,
                   getDrawingHorizontalLine: (_) => FlLine(
-                    color: AppColors.surfaceHighlight.withOpacity(0.5),
+                    color: AppColors.surfaceHighlight.withValues(alpha: 0.5),
                     strokeWidth: 1,
                   ),
                 ),
@@ -268,8 +268,8 @@ class _DepartmentPageState extends State<DepartmentPage> {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          AppColors.primary.withOpacity(0.15),
-                          AppColors.primary.withOpacity(0.0),
+                          AppColors.primary.withValues(alpha: 0.15),
+                          AppColors.primary.withValues(alpha: 0.0),
                         ],
                       ),
                     ),
@@ -435,7 +435,7 @@ class _EnvironmentalSummaryDialog extends StatelessWidget {
                 children: [
                   const Text('Environmental Summary Report', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
                   const SizedBox(height: 4),
-                  Text('Department: $departmentName  ·  Selected time range: 1 Hour', style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.8))),
+                  Text('Department: $departmentName  ·  Selected time range: 1 Hour', style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.8))),
                 ],
               ),
             ),

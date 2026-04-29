@@ -82,7 +82,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.warning.withOpacity(0.1),
+                    color: AppColors.warning.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: const Row(
@@ -137,7 +137,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           LucideIcons.save,
                           size: 16,
                           color: _hasUnsavedChanges
-                              ? Colors.white
+                              ? AppColors.background
                               : AppColors.textTertiary,
                         ),
                         const SizedBox(width: 8),
@@ -147,7 +147,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: _hasUnsavedChanges
-                                ? Colors.white
+                                ? AppColors.background
                                 : AppColors.textTertiary,
                           ),
                         ),
@@ -281,7 +281,7 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
           const SizedBox(height: 20),
-          Divider(color: AppColors.surfaceHighlight.withOpacity(0.5)),
+          Divider(color: AppColors.surfaceHighlight.withValues(alpha: 0.5)),
           const SizedBox(height: 20),
           _SliderRow(
             icon: LucideIcons.volumeX,
@@ -297,7 +297,7 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
           const SizedBox(height: 20),
-          Divider(color: AppColors.surfaceHighlight.withOpacity(0.5)),
+          Divider(color: AppColors.surfaceHighlight.withValues(alpha: 0.5)),
           const SizedBox(height: 20),
           _SliderRow(
             icon: LucideIcons.thermometer,
@@ -378,7 +378,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: isSelected
-                          ? Colors.white
+                          ? AppColors.background
                           : AppColors.textSecondary,
                     ),
                   ),
@@ -388,7 +388,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
 
           const SizedBox(height: 28),
-          Divider(color: AppColors.surfaceHighlight.withOpacity(0.5)),
+          Divider(color: AppColors.surfaceHighlight.withValues(alpha: 0.5)),
           const SizedBox(height: 20),
 
           _SliderRow(
@@ -405,7 +405,7 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
           const SizedBox(height: 20),
-          Divider(color: AppColors.surfaceHighlight.withOpacity(0.5)),
+          Divider(color: AppColors.surfaceHighlight.withValues(alpha: 0.5)),
           const SizedBox(height: 20),
           _SliderRow(
             icon: LucideIcons.clock,
@@ -482,7 +482,7 @@ class _SliderRow extends StatelessWidget {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(9),
           ),
           child: Icon(icon, size: 18, color: color),
@@ -505,7 +505,7 @@ class _SliderRow extends StatelessWidget {
               activeTrackColor: color,
               inactiveTrackColor: AppColors.surfaceHighlight,
               thumbColor: color,
-              overlayColor: color.withOpacity(0.15),
+              overlayColor: color.withValues(alpha: 0.15),
               trackHeight: 4,
               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
             ),
@@ -575,7 +575,7 @@ class _SettingsTileState extends State<_SettingsTile> {
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: _isHovered
-              ? AppColors.surfaceHighlight.withOpacity(0.6)
+              ? AppColors.surfaceHighlight.withValues(alpha: 0.6)
               : AppColors.surface,
           borderRadius: BorderRadius.circular(14),
         ),
@@ -585,7 +585,7 @@ class _SettingsTileState extends State<_SettingsTile> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: widget.color.withOpacity(0.1),
+                color: widget.color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(widget.icon, size: 20, color: widget.color),
@@ -621,7 +621,7 @@ class _SettingsTileState extends State<_SettingsTile> {
                   vertical: 5,
                 ),
                 decoration: BoxDecoration(
-                  color: widget.color.withOpacity(0.1),
+                  color: widget.color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
