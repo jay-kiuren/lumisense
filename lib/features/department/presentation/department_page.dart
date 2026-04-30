@@ -121,16 +121,29 @@ class _DepartmentPageState extends State<DepartmentPage> {
               curve: Curves.easeOut,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : Colors.transparent,
+                color: isSelected
+                    ? AppColors.surfaceHighlight.withValues(alpha: 0.85)
+                    : Colors.transparent,
                 borderRadius: BorderRadius.circular(9),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  if (isSelected) ...[
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: const BoxDecoration(
+                        color: AppColors.textPrimary,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
                   Icon(
                     dept.icon,
                     size: 16,
-                    color: isSelected ? Colors.white : AppColors.textTertiary,
+                    color: isSelected ? AppColors.textPrimary : AppColors.textTertiary,
                   ),
                   const SizedBox(width: 8),
                   Text(
@@ -138,7 +151,7 @@ class _DepartmentPageState extends State<DepartmentPage> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: isSelected ? Colors.white : AppColors.textTertiary,
+                      color: isSelected ? AppColors.textPrimary : AppColors.textTertiary,
                     ),
                   ),
                 ],
@@ -346,15 +359,30 @@ class _DepartmentPageState extends State<DepartmentPage> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryMuted]),
+            color: AppColors.surfaceHighlight,
             borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.shadowHeavy.withValues(alpha: 0.3),
+                blurRadius: 16,
+                spreadRadius: -8,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(LucideIcons.fileText, size: 16, color: Colors.white),
+              Icon(LucideIcons.fileText, size: 16, color: AppColors.textPrimary),
               SizedBox(width: 10),
-              Text('View Environmental Summary', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+              Text(
+                'View Environmental Summary',
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
           ),
         ),
@@ -427,15 +455,28 @@ class _EnvironmentalSummaryDialog extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryMuted]),
+                color: AppColors.surfaceHighlight,
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Environmental Summary Report', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                  const Text(
+                    'Environmental Summary Report',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  Text('Department: $departmentName  ·  Selected time range: 1 Hour', style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.8))),
+                  Text(
+                    'Department: $departmentName  ·  Selected time range: 1 Hour',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary.withValues(alpha: 0.9),
+                    ),
+                  ),
                 ],
               ),
             ),

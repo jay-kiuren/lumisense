@@ -87,12 +87,25 @@ class MLInferenceService {
         }
       }
 
+      // Sort all probabilities to return a full profile for the UI graph
+      List<Map<String, dynamic>> fullProfile = [];
+      for (int i = 0; i < probabilities.length; i++) {
+        fullProfile.add({
+          'label': _labels[i],
+          'confidence': probabilities[i],
+        });
+      }
+      
+      // Sort highest to lowest
+      fullProfile.sort((a, b) => (b['confidence'] as double).compareTo(a['confidence'] as double));
+
       return {
         'label': _labels[maxIndex],
         'confidence': maxProb,
+        'profile': fullProfile, // Contains all overlapping sounds
       };
     } catch (e) {
-      return {'label': 'error', 'confidence': 0.0};
+      return {'label': 'error', 'confidence': 0.0, 'profile': []};
     }
   }
 

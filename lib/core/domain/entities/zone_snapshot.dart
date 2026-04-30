@@ -8,6 +8,7 @@ class ZoneSnapshot {
     required this.noiseDb,
     required this.noiseLevel,
     required this.soundClass,
+    this.soundProfile = const [],
     required this.alertRaised,
     required this.updatedAt,
   });
@@ -18,6 +19,7 @@ class ZoneSnapshot {
   final double noiseDb;
   final NoiseLevel noiseLevel;
   final String soundClass;
+  final List<Map<String, dynamic>> soundProfile;
   final bool alertRaised;
   final DateTime updatedAt;
 }

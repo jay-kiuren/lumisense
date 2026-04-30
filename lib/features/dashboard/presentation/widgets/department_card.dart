@@ -3,6 +3,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../core/domain/entities/zone_snapshot.dart';
 import '../../../../core/domain/value_objects/noise_level.dart';
 import '../../../../core/theme/app_colors.dart';
+import 'sound_confidence_graph.dart';
 
 class DepartmentCard extends StatefulWidget {
   const DepartmentCard({super.key, required this.snapshot});
@@ -26,25 +27,11 @@ class _DepartmentCardState extends State<DepartmentCard> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeOut,
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(22),
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: _isHovered
-                ? status.color.withValues(alpha: 0.3)
-                : Colors.transparent,
-            width: 1,
-          ),
-          boxShadow: _isHovered
-              ? [
-                  BoxShadow(
-                    color: status.color.withValues(alpha: 0.06),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8),
-                  ),
-                ]
-              : [],
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: _isHovered ? AppColors.shadowHigh : AppColors.shadowMedium,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,16 +40,16 @@ class _DepartmentCardState extends State<DepartmentCard> {
             Row(
               children: [
                 Container(
-                  width: 40,
-                  height: 40,
+                  width: 46,
+                  height: 46,
                   decoration: BoxDecoration(
-                    color: status.color.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
+                    color: AppColors.surfaceElevated,
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     _iconForZone(widget.snapshot.zoneId),
-                    color: status.color,
-                    size: 20,
+                    color: AppColors.textPrimary,
+                    size: 22,
                   ),
                 ),
                 const SizedBox(width: 14),
@@ -72,13 +59,17 @@ class _DepartmentCardState extends State<DepartmentCard> {
                     children: [
                       Text(
                         widget.snapshot.zoneName,
-                        style: Theme.of(context).textTheme.titleMedium,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 4),
                       Text(
                         _timeSince(widget.snapshot.updatedAt),
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
                               color: AppColors.textTertiary,
+                              fontSize: 12,
                             ),
                       ),
                     ],
@@ -91,7 +82,7 @@ class _DepartmentCardState extends State<DepartmentCard> {
               ],
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
             // Metrics row
             Row(
@@ -100,21 +91,23 @@ class _DepartmentCardState extends State<DepartmentCard> {
                   icon: LucideIcons.volume2,
                   label: 'Sound',
                   value: '${widget.snapshot.noiseDb.toStringAsFixed(1)} dB',
-                  color: status.color,
+                  color: AppColors.textPrimary,
                 ),
                 const SizedBox(width: 16),
                 _MetricTile(
                   icon: LucideIcons.thermometer,
                   label: 'Temp',
                   value: '${widget.snapshot.temperatureC.toStringAsFixed(1)}°C',
-                  color: AppColors.primary,
+                  color: AppColors.textPrimary,
                 ),
                 const SizedBox(width: 16),
-                _MetricTile(
-                  icon: LucideIcons.waves,
-                  label: 'Type',
-                  value: _formatSoundClass(widget.snapshot.soundClass),
-                  color: AppColors.textSecondary,
+                Expanded(
+                  child: _SoundTypeTile(
+                    icon: LucideIcons.waves,
+                    label: 'Type',
+                    color: AppColors.textSecondary,
+                    soundProfile: widget.snapshot.soundProfile,
+                  ),
                 ),
               ],
             ),
@@ -145,23 +138,16 @@ class _DepartmentCardState extends State<DepartmentCard> {
     return '${diff.inHours}h ago';
   }
 
-  String _formatSoundClass(String cls) {
-    return cls.replaceAll('_', ' ').split(' ').map((w) {
-      if (w.isEmpty) return w;
-      return w[0].toUpperCase() + w.substring(1);
-    }).join(' ');
-  }
-
   _StatusData _statusInfo(NoiseLevel level) {
     switch (level) {
       case NoiseLevel.quiet:
-        return _StatusData('Quiet', AppColors.success);
+        return _StatusData('Live', AppColors.statusLive);
       case NoiseLevel.normal:
-        return _StatusData('Normal', AppColors.primary);
+        return _StatusData('Stable', AppColors.statusStable);
       case NoiseLevel.warning:
-        return _StatusData('Warning', AppColors.warning);
+        return _StatusData('Caution', AppColors.statusWarning);
       case NoiseLevel.critical:
-        return _StatusData('Critical', AppColors.error);
+        return _StatusData('Critical', AppColors.statusCritical);
     }
   }
 }
@@ -180,34 +166,27 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
           ),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              color: color,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: const TextStyle(
+            color: AppColors.textSecondary,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -229,9 +208,9 @@ class _MetricTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
         decoration: BoxDecoration(
-          color: AppColors.background,
+          color: AppColors.surfaceElevated,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(
@@ -239,13 +218,13 @@ class _MetricTile extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, size: 14, color: AppColors.textTertiary),
+                Icon(icon, size: 15, color: AppColors.textTertiary),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
                     label,
                     style: const TextStyle(
-                      fontSize: 11,
+                      fontSize: 12,
                       color: AppColors.textTertiary,
                       fontWeight: FontWeight.w500,
                     ),
@@ -255,11 +234,11 @@ class _MetricTile extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Text(
               value,
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: color,
               ),
@@ -267,6 +246,56 @@ class _MetricTile extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _SoundTypeTile extends StatelessWidget {
+  const _SoundTypeTile({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.soundProfile,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+  final List<Map<String, dynamic>> soundProfile;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceElevated,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 15, color: AppColors.textTertiary),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textTertiary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          SoundConfidenceGraph(soundProfile: soundProfile),
+        ],
       ),
     );
   }

@@ -23,10 +23,18 @@ class QuickStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.shadowHeavy.withValues(alpha: 0.34),
+            blurRadius: 24,
+            spreadRadius: -10,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,18 +45,17 @@ class QuickStatCard extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.1),
+                  color: AppColors.surfaceHighlight.withValues(alpha: 0.45),
                   borderRadius: BorderRadius.circular(9),
                 ),
-                child: Icon(icon, size: 18, color: accentColor),
+                child: Icon(icon, size: 18, color: AppColors.textPrimary),
               ),
               const Spacer(),
               if (delta != null)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: (isDeltaPositive ? AppColors.success : AppColors.error)
-                        .withValues(alpha: 0.1),
+                    color: AppColors.surfaceHighlight.withValues(alpha: 0.55),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Row(
@@ -59,7 +66,7 @@ class QuickStatCard extends StatelessWidget {
                             ? LucideIcons.trendingUp
                             : LucideIcons.trendingDown,
                         size: 12,
-                        color: isDeltaPositive ? AppColors.success : AppColors.error,
+                        color: isDeltaPositive ? AppColors.textSecondary : AppColors.error,
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -67,7 +74,7 @@ class QuickStatCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: isDeltaPositive ? AppColors.success : AppColors.error,
+                          color: isDeltaPositive ? AppColors.textSecondary : AppColors.error,
                         ),
                       ),
                     ],
@@ -116,7 +123,7 @@ class QuickStatsRow extends StatelessWidget {
                 label: 'Avg Sound Level',
                 value: '48.3',
                 delta: '2.1 dB',
-                accentColor: AppColors.primary,
+                accentColor: AppColors.textPrimary,
                 isDeltaPositive: false,
               ),
             ),
@@ -127,7 +134,7 @@ class QuickStatsRow extends StatelessWidget {
                 label: 'Avg Temperature',
                 value: '24.8°',
                 delta: '0.5°',
-                accentColor: AppColors.success,
+                accentColor: AppColors.textPrimary,
                 isDeltaPositive: true,
               ),
             ),
@@ -142,7 +149,7 @@ class QuickStatsRow extends StatelessWidget {
                 label: 'Active Alerts',
                 value: '3',
                 delta: '1',
-                accentColor: AppColors.error,
+                accentColor: AppColors.textPrimary,
                 isDeltaPositive: true,
               ),
             ),
@@ -152,7 +159,7 @@ class QuickStatsRow extends StatelessWidget {
                 icon: LucideIcons.radio,
                 label: 'Online Sensors',
                 value: '3/3',
-                accentColor: AppColors.success,
+                accentColor: AppColors.textPrimary,
               ),
             ),
           ],

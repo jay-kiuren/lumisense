@@ -19,7 +19,7 @@ class _AnalyticsRangeSelectorState extends State<AnalyticsRangeSelector> {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: AppColors.workspaceBg,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -36,7 +36,7 @@ class _AnalyticsRangeSelectorState extends State<AnalyticsRangeSelector> {
               curve: Curves.easeOut,
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : Colors.transparent,
+                color: isSelected ? AppColors.textPrimary : AppColors.surfaceElevated,
                 borderRadius: BorderRadius.circular(7),
               ),
               child: Text(
@@ -44,7 +44,7 @@ class _AnalyticsRangeSelectorState extends State<AnalyticsRangeSelector> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: isSelected ? Colors.white : AppColors.textTertiary,
+                  color: isSelected ? AppColors.appBackground : AppColors.textSecondary,
                 ),
               ),
             ),

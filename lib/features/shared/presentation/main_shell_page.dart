@@ -21,48 +21,30 @@ class _MainShellPageState extends State<MainShellPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final double effectiveWidth = constraints.maxWidth > 1280 ? constraints.maxWidth : 1280;
-          final double effectiveHeight = constraints.maxHeight > 800 ? constraints.maxHeight : 800;
-
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: SizedBox(
-                width: effectiveWidth,
-                height: effectiveHeight,
-                child: Row(
-                  children: [
-                    AppSidebar(
-                      selectedIndex: _selectedIndex,
-                      isCollapsed: _isCollapsed,
-                      onToggleCollapse: () {
-                        setState(() {
-                          _isCollapsed = !_isCollapsed;
-                        });
-                      },
-                      onSelected: (index) {
-                        setState(() {
-                          _selectedIndex = index;
-                        });
-                      },
-                    ),
-                    Container(
-                      width: 1,
-                      color: AppColors.surfaceHighlight,
-                    ),
-                    Expanded(
-                      child: _buildContent(),
-                    ),
-                  ],
-                ),
-              ),
+      backgroundColor: AppColors.appBackground,
+      body: Row(
+        children: [
+          AppSidebar(
+            selectedIndex: _selectedIndex,
+            isCollapsed: _isCollapsed,
+            onToggleCollapse: () {
+              setState(() {
+                _isCollapsed = !_isCollapsed;
+              });
+            },
+            onSelected: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
+          ),
+          Expanded(
+            child: ColoredBox(
+              color: AppColors.workspaceBg,
+              child: _buildContent(),
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }

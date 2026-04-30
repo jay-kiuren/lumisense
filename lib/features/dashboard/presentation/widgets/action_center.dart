@@ -19,10 +19,11 @@ class _ActionCenterState extends State<ActionCenter> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: AppColors.shadowLow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,15 +31,15 @@ class _ActionCenterState extends State<ActionCenter> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.warning.withValues(alpha: 0.1),
+                  color: AppColors.surfaceElevated,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
                   LucideIcons.shieldAlert,
-                  size: 18,
-                  color: AppColors.warning,
+                  size: 20,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(width: 12),
@@ -48,14 +49,17 @@ class _ActionCenterState extends State<ActionCenter> {
                   children: [
                     Text(
                       'Alarm System Status',
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
                     const Text(
                       'Manage automated buzzer triggers',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 13,
                         color: AppColors.textTertiary,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -66,7 +70,7 @@ class _ActionCenterState extends State<ActionCenter> {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           _buildOverrideSwitch(
             icon: LucideIcons.globe,
             label: 'Global Alarm',
@@ -84,8 +88,9 @@ class _ActionCenterState extends State<ActionCenter> {
             isGlobal: true,
           ),
           Divider(
-            color: AppColors.surfaceHighlight.withValues(alpha: 0.5),
+            color: AppColors.separator,
             height: 24,
+            thickness: 0.5,
           ),
           _buildOverrideSwitch(
             icon: LucideIcons.monitorSpeaker,
@@ -93,14 +98,14 @@ class _ActionCenterState extends State<ActionCenter> {
             value: _itBuzzerOverride,
             onChanged: (v) => setState(() => _itBuzzerOverride = v),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           _buildOverrideSwitch(
             icon: LucideIcons.server,
             label: 'CS Zone',
             value: _csBuzzerOverride,
             onChanged: (v) => setState(() => _csBuzzerOverride = v),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           _buildOverrideSwitch(
             icon: LucideIcons.cpu,
             label: 'Eng Zone',
@@ -124,58 +129,64 @@ class _ActionCenterState extends State<ActionCenter> {
 
     return Row(
       children: [
-        Icon(icon, size: 16, color: AppColors.textSecondary),
-        const SizedBox(width: 12),
+        Icon(icon, size: 17, color: AppColors.textSecondary),
+        const SizedBox(width: 10),
         Expanded(
           child: Text(
             label,
             style: TextStyle(
-              fontSize: isGlobal ? 14 : 13,
+              fontSize: isGlobal ? 15 : 14,
               fontWeight: isGlobal ? FontWeight.w600 : FontWeight.w500,
               color: AppColors.textPrimary,
             ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: (isMuted ? AppColors.warning : AppColors.success)
-                .withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: isMuted ? AppColors.warning : AppColors.success,
-                  shape: BoxShape.circle,
+        Flexible(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceElevated,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: isMuted ? AppColors.error : AppColors.success,
+                    shape: BoxShape.circle,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                isMuted ? 'Muted' : 'Armed',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: isMuted ? AppColors.warning : AppColors.success,
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    isMuted ? 'Muted' : 'Armed',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: isMuted ? AppColors.error : AppColors.textSecondary,
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-        const SizedBox(width: 12),
-        SizedBox(
-          height: 24,
+        const SizedBox(width: 6),
+        Transform.scale(
+          scale: 0.9,
           child: Switch(
             value: isMuted,
             onChanged: onChanged,
             activeThumbColor: AppColors.textPrimary,
-            activeTrackColor: AppColors.warning,
+            activeTrackColor: AppColors.textTertiary,
             inactiveThumbColor: AppColors.textSecondary,
-            inactiveTrackColor: AppColors.surfaceHighlight,
+            inactiveTrackColor: AppColors.statusLive,
             trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
           ),
         ),

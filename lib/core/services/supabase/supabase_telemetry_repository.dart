@@ -42,6 +42,12 @@ class SupabaseTelemetryRepository implements TelemetryRepository {
           );
 
           final String soundClass = result['label'] as String;
+          final List<Map<String, dynamic>> soundProfile =
+              (result['profile'] as List?)?.map((e) {
+                    final map = e as Map;
+                    return map.cast<String, dynamic>();
+                  }).toList() ??
+                  const <Map<String, dynamic>>[];
           final NoiseLevel level = _resolveNoiseLevel(noiseDb);
 
           return ZoneSnapshot(
@@ -51,6 +57,7 @@ class SupabaseTelemetryRepository implements TelemetryRepository {
             noiseDb: noiseDb,
             noiseLevel: level,
             soundClass: soundClass,
+            soundProfile: soundProfile,
             alertRaised: level == NoiseLevel.warning || level == NoiseLevel.critical,
             updatedAt: DateTime.parse(row['timestamp'] as String),
           );

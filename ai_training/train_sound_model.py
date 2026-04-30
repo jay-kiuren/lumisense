@@ -58,15 +58,64 @@ def load_data():
     return df
 
 
-# ─── STEP 2: PREPARE FEATURES ───────────────────────────────
+# ─── STEP 2: PREPARE AND AUGMENT FEATURES ───────────────────────────────
+def augment_data(X, y, target_samples_per_class=1000):
+    """
+    PROFESSIONAL GRADE DATA AUGMENTATION:
+    263 rows is not enough for a production AI. We will generate synthetic
+    sensor data by injecting realistic Gaussian noise to simulate thousands
+    of real-world variations.
+    """
+    print(f'🧬 Augmenting data to {target_samples_per_class} samples per class...')
+    unique_classes = np.unique(y)
+    X_aug, y_aug = [], []
+    
+    for cls in unique_classes:
+        # Get all samples for this class
+        X_cls = X[y == cls]
+        # Keep original data
+        X_aug.append(X_cls)
+        y_aug.append(np.full(len(X_cls), cls))
+        
+        # Calculate how many synthetic samples we need to reach the target
+        samples_needed = target_samples_per_class - len(X_cls)
+        if samples_needed > 0:
+            # Generate synthetic data by adding random sensor noise (5% variance)
+            std_devs = np.std(X_cls, axis=0)
+            # If standard deviation is 0 (e.g. Min is always 0), add a tiny baseline noise
+            std_devs[std_devs == 0] = 0.5 
+            
+            # Randomly pick base samples to mutate
+            idx = np.random.randint(0, len(X_cls), samples_needed)
+            base_samples = X_cls[idx]
+            
+            # Inject Gaussian noise
+            noise = np.random.normal(0, std_devs * 0.05, size=base_samples.shape)
+            synthetic_samples = base_samples + noise
+            
+            # Ensure Min doesn't drop below 0
+            synthetic_samples = np.clip(synthetic_samples, a_min=0, a_max=None)
+            
+            X_aug.append(synthetic_samples)
+            y_aug.append(np.full(samples_needed, cls))
+            
+    X_combined = np.vstack(X_aug)
+    y_combined = np.concatenate(y_aug)
+    
+    print(f'   Expanded dataset from {len(X)} to {len(X_combined)} samples.')
+    return X_combined, y_combined
+
 def prepare_features(df):
-    """Extract features (Avg, Peak, Min, RMS) and labels."""
+    """Extract features, augment them, and scale."""
     # Features: the 4 sensor values
     X = df[['Avg', 'Peak', 'Min', 'RMS']].values.astype(np.float32)
 
     # Labels: the sound class
     label_encoder = LabelEncoder()
     y = label_encoder.fit_transform(df['Label'])
+    
+    # Augment the data up to 1000 samples per class
+    X, y = augment_data(X, y, target_samples_per_class=1000)
 
     # Normalize features so the ANN learns faster
     scaler = StandardScaler()
@@ -116,7 +165,7 @@ def build_ann(num_classes):
 def train_model(X, y, num_classes):
     """Train the ANN."""
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=TEST_SPLIT, random_state=42, stratify=y
+        X, y, test_size=TEST_SPLIT, random_state=42
     )
 
     print(f'🧠 Training ANN...')
