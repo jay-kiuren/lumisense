@@ -34,20 +34,27 @@ class FloorPlanWidget extends StatelessWidget {
                     child: const Icon(LucideIcons.map, size: 48, color: AppColors.accent),
                   ),
                   const SizedBox(height: 24),
-                  Text(
-                    'Real-Time AI Floor Plan',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      'Real-Time AI Floor Plan',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
                   ),
                   const SizedBox(height: 12),
-                  Text(
-                    'Awaiting machine learning integration to plot real-time\nsound classification and localization directly on the map.',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
-                      height: 1.5,
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      'Awaiting machine learning integration to plot real-time sound classification and localization directly on the map.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.textSecondary,
+                        height: 1.5,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 32),

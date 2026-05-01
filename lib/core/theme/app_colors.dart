@@ -38,13 +38,13 @@ class AppColors {
   static const Color shadowHeavy = Colors.black;
 
   static List<BoxShadow> shadowLow = const [
-    BoxShadow(color: Color(0xFF000000), blurRadius: 8, offset: Offset(0, 2), spreadRadius: 0),
+    BoxShadow(color: Color(0x1F000000), blurRadius: 8, offset: Offset(0, 2), spreadRadius: -1),
   ];
   static List<BoxShadow> shadowMedium = const [
-    BoxShadow(color: Color(0xFF000000), blurRadius: 20, offset: Offset(0, 4), spreadRadius: -2),
+    BoxShadow(color: Color(0x2B000000), blurRadius: 14, offset: Offset(0, 4), spreadRadius: -3),
   ];
   static List<BoxShadow> shadowHigh = const [
-    BoxShadow(color: Color(0xFF000000), blurRadius: 40, offset: Offset(0, 8), spreadRadius: -4),
+    BoxShadow(color: Color(0x36000000), blurRadius: 18, offset: Offset(0, 5), spreadRadius: -4),
   ];
 
   // Chart Gradients

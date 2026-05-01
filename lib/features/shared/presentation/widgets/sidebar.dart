@@ -3,7 +3,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class AppSidebar extends StatelessWidget {
-  static const double _expandedWidth = 220;
+  static const double _expandedWidth = 236;
   static const double _collapsedWidth = 80;
   static const double _iconLeftInset = 24;
   static const double _iconSlotSize = 32;
@@ -23,9 +23,7 @@ class AppSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeInOut,
+    return Container(
       width: isCollapsed ? _collapsedWidth : _expandedWidth,
       decoration: BoxDecoration(
         color: AppColors.sidebar,

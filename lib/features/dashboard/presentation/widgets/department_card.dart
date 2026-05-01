@@ -5,115 +5,89 @@ import '../../../../core/domain/value_objects/noise_level.dart';
 import '../../../../core/theme/app_colors.dart';
 import 'sound_confidence_graph.dart';
 
-class DepartmentCard extends StatefulWidget {
+class DepartmentCard extends StatelessWidget {
   const DepartmentCard({super.key, required this.snapshot});
 
   final ZoneSnapshot snapshot;
 
   @override
-  State<DepartmentCard> createState() => _DepartmentCardState();
-}
-
-class _DepartmentCardState extends State<DepartmentCard> {
-  bool _isHovered = false;
-
-  @override
   Widget build(BuildContext context) {
-    final status = _statusInfo(widget.snapshot.noiseLevel);
+    final status = _statusInfo(snapshot.noiseLevel);
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOut,
-        padding: const EdgeInsets.all(22),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: _isHovered ? AppColors.shadowHigh : AppColors.shadowMedium,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header row
+        Row(
           children: [
-            // Header row
-            Row(
-              children: [
-                Container(
-                  width: 46,
-                  height: 46,
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceElevated,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    _iconForZone(widget.snapshot.zoneId),
-                    color: AppColors.textPrimary,
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.snapshot.zoneName,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        _timeSince(widget.snapshot.updatedAt),
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: AppColors.textTertiary,
-                              fontSize: 12,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-                _StatusBadge(
-                  label: status.label,
-                  color: status.color,
-                ),
-              ],
+            Container(
+              width: 46,
+              height: 46,
+              decoration: BoxDecoration(
+                color: AppColors.surfaceElevated,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                _iconForZone(snapshot.zoneId),
+                color: AppColors.textPrimary,
+                size: 22,
+              ),
             ),
-
-            const SizedBox(height: 20),
-
-            // Metrics row
-            Row(
-              children: [
-                _MetricTile(
-                  icon: LucideIcons.volume2,
-                  label: 'Sound',
-                  value: '${widget.snapshot.noiseDb.toStringAsFixed(1)} dB',
-                  color: AppColors.textPrimary,
-                ),
-                const SizedBox(width: 16),
-                _MetricTile(
-                  icon: LucideIcons.thermometer,
-                  label: 'Temp',
-                  value: '${widget.snapshot.temperatureC.toStringAsFixed(1)}°C',
-                  color: AppColors.textPrimary,
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _SoundTypeTile(
-                    icon: LucideIcons.waves,
-                    label: 'Type',
-                    color: AppColors.textSecondary,
-                    soundProfile: widget.snapshot.soundProfile,
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    snapshot.zoneName,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 4),
+                  Text(
+                    _timeSince(snapshot.updatedAt),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: AppColors.textTertiary,
+                          fontSize: 12,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            _StatusBadge(
+              label: status.label,
+              color: status.color,
             ),
           ],
         ),
-      ),
+
+        const SizedBox(height: 16),
+        const Divider(color: AppColors.separator, thickness: 0.5, height: 1),
+        const SizedBox(height: 8),
+
+        // Metrics vertically structured
+        _MetricRow(
+          icon: LucideIcons.volume2,
+          label: 'Sound Level',
+          value: '${snapshot.noiseDb.toStringAsFixed(1)} dB',
+          color: AppColors.textPrimary,
+        ),
+        _MetricRow(
+          icon: LucideIcons.thermometer,
+          label: 'Temperature',
+          value: '${snapshot.temperatureC.toStringAsFixed(1)}°C',
+          color: AppColors.textPrimary,
+        ),
+
+        const SizedBox(height: 8),
+        const Divider(color: AppColors.separator, thickness: 0.5, height: 1),
+
+        _SoundTypeSection(
+          soundProfile: snapshot.soundProfile,
+        ),
+      ],
     );
   }
 
@@ -191,13 +165,13 @@ class _StatusBadge extends StatelessWidget {
   }
 }
 
-class _MetricTile extends StatelessWidget {
+class _MetricRow extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
   final Color color;
 
-  const _MetricTile({
+  const _MetricRow({
     required this.icon,
     required this.label,
     required this.value,
@@ -206,97 +180,65 @@ class _MetricTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
-        decoration: BoxDecoration(
-          color: AppColors.surfaceElevated,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, size: 15, color: AppColors.textTertiary),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textTertiary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
-              ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: AppColors.textTertiary),
+          const SizedBox(width: 10),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500,
             ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
-              overflow: TextOverflow.ellipsis,
+          ),
+          const Spacer(),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: color,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _SoundTypeTile extends StatelessWidget {
-  const _SoundTypeTile({
-    required this.icon,
-    required this.label,
-    required this.color,
+class _SoundTypeSection extends StatelessWidget {
+  const _SoundTypeSection({
     required this.soundProfile,
   });
 
-  final IconData icon;
-  final String label;
-  final Color color;
   final List<Map<String, dynamic>> soundProfile;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceElevated,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 15, color: AppColors.textTertiary),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textTertiary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Icon(LucideIcons.waves, size: 16, color: AppColors.textTertiary),
+            const SizedBox(width: 10),
+            const Text(
+              'Live Sound Profile',
+              style: TextStyle(
+                fontSize: 13,
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w500,
               ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          SoundConfidenceGraph(soundProfile: soundProfile),
-        ],
-      ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        SoundConfidenceGraph(soundProfile: soundProfile),
+      ],
     );
   }
 }

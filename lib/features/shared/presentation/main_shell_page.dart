@@ -20,31 +20,58 @@ class _MainShellPageState extends State<MainShellPage> {
 
   @override
   Widget build(BuildContext context) {
+    const minContentWidth = 1280.0;
+    const minContentHeight = 760.0;
+    const maxSidebarWidth = 236.0;
+    final sidebarWidth = _isCollapsed ? 80.0 : 236.0;
+
     return Scaffold(
       backgroundColor: AppColors.appBackground,
-      body: Row(
-        children: [
-          AppSidebar(
-            selectedIndex: _selectedIndex,
-            isCollapsed: _isCollapsed,
-            onToggleCollapse: () {
-              setState(() {
-                _isCollapsed = !_isCollapsed;
-              });
-            },
-            onSelected: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
-          ),
-          Expanded(
-            child: ColoredBox(
-              color: AppColors.workspaceBg,
-              child: _buildContent(),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final canvasWidth = constraints.maxWidth < (maxSidebarWidth + minContentWidth)
+              ? (maxSidebarWidth + minContentWidth)
+              : constraints.maxWidth;
+          final canvasHeight = constraints.maxHeight < minContentHeight
+              ? minContentHeight
+              : constraints.maxHeight;
+
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: SizedBox(
+                width: canvasWidth,
+                height: canvasHeight,
+                child: Row(
+                  children: [
+                    AppSidebar(
+                      selectedIndex: _selectedIndex,
+                      isCollapsed: _isCollapsed,
+                      onToggleCollapse: () {
+                        setState(() {
+                          _isCollapsed = !_isCollapsed;
+                        });
+                      },
+                      onSelected: (index) {
+                        setState(() {
+                          _selectedIndex = index;
+                        });
+                      },
+                    ),
+                    SizedBox(
+                      width: canvasWidth - sidebarWidth,
+                      child: ColoredBox(
+                        color: AppColors.workspaceBg,
+                        child: _buildContent(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

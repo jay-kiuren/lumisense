@@ -92,18 +92,19 @@ class DashboardPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const Expanded(
-                    flex: 4,
+                    flex: 6,
                     child: FloorPlanWidget(),
                   ),
                   const SizedBox(width: 16),
-                  SizedBox(
-                    width: 380,
+                  Expanded(
+                    flex: 3,
                     child: _LiveZonesPanel(zones: mockZones),
                   ),
                   const SizedBox(width: 16),
-                  const SizedBox(
-                    width: 340,
+                  const Expanded(
+                    flex: 3,
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         ActionCenter(),
                         SizedBox(height: 16),
@@ -120,25 +121,7 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
-  Widget _buildLiveZones(List<ZoneSnapshot> zones) {
-    if (zones.length <= 3) {
-      return Column(
-        children: [
-          for (int i = 0; i < zones.length; i++) ...[
-            Expanded(child: DepartmentCard(snapshot: zones[i])),
-            if (i != zones.length - 1) const SizedBox(height: 12),
-          ],
-        ],
-      );
-    }
 
-    return ListView.separated(
-      padding: EdgeInsets.zero,
-      itemCount: zones.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (context, index) => DepartmentCard(snapshot: zones[index]),
-    );
-  }
  
   String _formattedDate(DateTime dt) {
     const months = [
@@ -186,21 +169,13 @@ class _LiveZonesPanel extends StatelessWidget {
   }
 
   Widget _buildZones(BuildContext context) {
-    if (zones.length <= 3) {
-      return Column(
-        children: [
-          for (int i = 0; i < zones.length; i++) ...[
-            Expanded(child: DepartmentCard(snapshot: zones[i])),
-            if (i != zones.length - 1) const SizedBox(height: 12),
-          ],
-        ],
-      );
-    }
-
     return ListView.separated(
       padding: EdgeInsets.zero,
       itemCount: zones.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
+      separatorBuilder: (context, index) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Divider(color: AppColors.surfaceHighlight.withValues(alpha: 0.8), height: 1),
+      ),
       itemBuilder: (context, index) => DepartmentCard(snapshot: zones[index]),
     );
   }

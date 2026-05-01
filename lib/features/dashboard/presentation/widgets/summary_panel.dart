@@ -134,14 +134,21 @@ class _SummaryRow extends StatelessWidget {
                     color: AppColors.textSecondary,
                     fontWeight: FontWeight.w400,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: color,
+              const SizedBox(width: 10),
+              SizedBox(
+                width: 88,
+                child: Text(
+                  value,
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: color,
+                  ),
                 ),
               ),
             ],

@@ -11,7 +11,6 @@ class ActionCenter extends StatefulWidget {
 
 class _ActionCenterState extends State<ActionCenter> {
   // Buzzer states (Armed = false, Muted/Overridden = true)
-  bool _globalBuzzerOverride = false;
   bool _itBuzzerOverride = false;
   bool _csBuzzerOverride = false;
   bool _engBuzzerOverride = false;
@@ -71,23 +70,7 @@ class _ActionCenterState extends State<ActionCenter> {
             ],
           ),
           const SizedBox(height: 20),
-          _buildOverrideSwitch(
-            icon: LucideIcons.globe,
-            label: 'Global Alarm',
-            value: _globalBuzzerOverride,
-            onChanged: (v) {
-              setState(() {
-                _globalBuzzerOverride = v;
-                if (v) {
-                  _itBuzzerOverride = true;
-                  _csBuzzerOverride = true;
-                  _engBuzzerOverride = true;
-                }
-              });
-            },
-            isGlobal: true,
-          ),
-          Divider(
+          const Divider(
             color: AppColors.separator,
             height: 24,
             thickness: 0.5,
@@ -122,7 +105,6 @@ class _ActionCenterState extends State<ActionCenter> {
     required String label,
     required bool value,
     required ValueChanged<bool> onChanged,
-    bool isGlobal = false,
   }) {
     // If value == true, it means Muted (overridden). Default is false (Armed).
     final isMuted = value;
@@ -134,15 +116,16 @@ class _ActionCenterState extends State<ActionCenter> {
         Expanded(
           child: Text(
             label,
-            style: TextStyle(
-              fontSize: isGlobal ? 15 : 14,
-              fontWeight: isGlobal ? FontWeight.w600 : FontWeight.w500,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
               color: AppColors.textPrimary,
             ),
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        Flexible(
+        SizedBox(
+          width: 78,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
@@ -161,16 +144,14 @@ class _ActionCenterState extends State<ActionCenter> {
                   ),
                 ),
                 const SizedBox(width: 6),
-                Flexible(
-                  child: Text(
-                    isMuted ? 'Muted' : 'Armed',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: isMuted ? AppColors.error : AppColors.textSecondary,
-                    ),
+                Text(
+                  isMuted ? 'Muted' : 'Armed',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: isMuted ? AppColors.error : AppColors.textSecondary,
                   ),
                 ),
               ],
@@ -178,16 +159,19 @@ class _ActionCenterState extends State<ActionCenter> {
           ),
         ),
         const SizedBox(width: 6),
-        Transform.scale(
-          scale: 0.9,
-          child: Switch(
-            value: isMuted,
-            onChanged: onChanged,
-            activeThumbColor: AppColors.textPrimary,
-            activeTrackColor: AppColors.textTertiary,
-            inactiveThumbColor: AppColors.textSecondary,
-            inactiveTrackColor: AppColors.statusLive,
-            trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+        SizedBox(
+          width: 88,
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Switch(
+              value: isMuted,
+              onChanged: onChanged,
+              activeThumbColor: AppColors.textPrimary,
+              activeTrackColor: AppColors.textTertiary,
+              inactiveThumbColor: AppColors.textSecondary,
+              inactiveTrackColor: AppColors.statusLive,
+              trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+            ),
           ),
         ),
       ],
