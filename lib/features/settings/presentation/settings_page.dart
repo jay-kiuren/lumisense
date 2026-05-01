@@ -33,14 +33,14 @@ class _SettingsPageState extends State<SettingsPage> {
       SnackBar(
         content: const Row(
           children: [
-            Icon(LucideIcons.checkCircle, color: Colors.white, size: 18),
+            Icon(LucideIcons.check, color: AppColors.background, size: 16),
             SizedBox(width: 10),
-            Text('Settings saved successfully'),
+            Text('Settings saved', style: TextStyle(color: AppColors.background, fontWeight: FontWeight.w600)),
           ],
         ),
-        backgroundColor: AppColors.success,
+        backgroundColor: AppColors.textPrimary,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         margin: const EdgeInsets.all(24),
         duration: const Duration(seconds: 2),
       ),
@@ -66,7 +66,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Configure noise thresholds, buzzer overrides, and alarm patterns',
+                    'System configuration and calibration',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.textTertiary,
                     ),
@@ -76,40 +76,21 @@ class _SettingsPageState extends State<SettingsPage> {
               const Spacer(),
               if (_hasUnsavedChanges)
                 Container(
-                  margin: const EdgeInsets.only(right: 12),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.warning.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        LucideIcons.alertCircle,
-                        size: 13,
-                        color: AppColors.warning,
-                      ),
-                      SizedBox(width: 6),
-                      Text(
-                        'Unsaved changes',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.warning,
-                        ),
-                      ),
-                    ],
+                  margin: const EdgeInsets.only(right: 16),
+                  child: const Text(
+                    'Unsaved changes',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ),
               Material(
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: _hasUnsavedChanges ? _saveAll : null,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(8),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     padding: const EdgeInsets.symmetric(
@@ -117,27 +98,20 @@ class _SettingsPageState extends State<SettingsPage> {
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      gradient: _hasUnsavedChanges
-                          ? const LinearGradient(
-                              colors: [
-                                AppColors.primary,
-                                AppColors.primaryMuted,
-                              ],
-                            )
-                          : null,
                       color: _hasUnsavedChanges
-                          ? null
-                          : AppColors.surfaceHighlight,
-                      borderRadius: BorderRadius.circular(10),
+                          ? AppColors.primary
+                          : AppColors.surfaceElevated,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: _hasUnsavedChanges ? AppColors.shadowLow : null,
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
                           LucideIcons.save,
-                          size: 16,
+                          size: 14,
                           color: _hasUnsavedChanges
-                              ? AppColors.background
+                              ? Colors.white
                               : AppColors.textTertiary,
                         ),
                         const SizedBox(width: 8),
@@ -147,7 +121,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: _hasUnsavedChanges
-                                ? AppColors.background
+                                ? Colors.white
                                 : AppColors.textTertiary,
                           ),
                         ),
@@ -159,7 +133,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
           ),
 
-          const SizedBox(height: 32),
+          const SizedBox(height: 36),
 
           Expanded(
             child: SingleChildScrollView(
@@ -167,85 +141,57 @@ class _SettingsPageState extends State<SettingsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // ── NOISE RANGE ──
-                  _SectionHeader(
-                    title: 'Noise Range Adjustment',
-                    icon: LucideIcons.sliders,
-                  ),
+                  const _SectionHeader(title: 'Threshold Calibration'),
                   const SizedBox(height: 16),
                   _buildNoiseRangeSection(),
 
-
-                  const SizedBox(height: 36),
+                  const SizedBox(height: 32),
 
                   // ── ALARM PATTERN ──
-                  _SectionHeader(
-                    title: 'Alarm Pattern Calibration',
-                    icon: LucideIcons.waves,
-                  ),
+                  const _SectionHeader(title: 'Alarm Configuration'),
                   const SizedBox(height: 16),
                   _buildAlarmPatternSection(),
 
-                  const SizedBox(height: 36),
+                  const SizedBox(height: 32),
 
                   // ── CONNECTIONS ──
-                  _SectionHeader(title: 'Connections', icon: LucideIcons.plug),
+                  const _SectionHeader(title: 'System Integration'),
                   const SizedBox(height: 16),
-                  _SettingsTile(
-                    icon: LucideIcons.database,
-                    title: 'Firebase Configuration',
-                    subtitle: 'Realtime database connection',
-                    trailing: 'Connected',
-                    color: AppColors.success,
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: AppColors.shadowLow,
+                    ),
+                    child: Column(
+                      children: [
+                        const _SettingsTile(
+                          icon: LucideIcons.database,
+                          title: 'Firebase Realtime Database',
+                          subtitle: 'Primary telemetry storage and synchronization',
+                          statusText: 'Connected',
+                          isPositive: true,
+                        ),
+                        Divider(color: AppColors.borderSubtle, height: 1),
+                        const _SettingsTile(
+                          icon: LucideIcons.radio,
+                          title: 'Hardware Nodes',
+                          subtitle: 'ESP32 sensor modules deployed in zones',
+                          statusText: '3 Online',
+                          isPositive: true,
+                        ),
+                        Divider(color: AppColors.borderSubtle, height: 1),
+                        const _SettingsTile(
+                          icon: LucideIcons.cpu,
+                          title: 'Edge Impulse ML Model',
+                          subtitle: 'Sound classification inference engine',
+                          statusText: 'Active',
+                          isPositive: true,
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 10),
-                  _SettingsTile(
-                    icon: LucideIcons.radio,
-                    title: 'ESP32 Nodes',
-                    subtitle: 'Hardware sensor nodes',
-                    trailing: '3 online',
-                    color: AppColors.success,
-                  ),
-
-                  const SizedBox(height: 36),
-
-                  // ── ML ──
-                  _SectionHeader(
-                    title: 'Machine Learning',
-                    icon: LucideIcons.brain,
-                  ),
-                  const SizedBox(height: 16),
-                  _SettingsTile(
-                    icon: LucideIcons.cpu,
-                    title: 'ML Model Provider',
-                    subtitle: 'Edge Impulse sound classification',
-                    trailing: 'Active',
-                    color: AppColors.primary,
-                  ),
-                  const SizedBox(height: 10),
-                  _SettingsTile(
-                    icon: LucideIcons.layers,
-                    title: 'Supported Sound Classes',
-                    subtitle:
-                        'ambient, conversation, chair_dragging, loud_talking',
-                    trailing: '4 classes',
-                    color: AppColors.textSecondary,
-                  ),
-
-                  const SizedBox(height: 36),
-
-                  _SectionHeader(
-                    title: 'Application',
-                    icon: LucideIcons.settings,
-                  ),
-                  const SizedBox(height: 16),
-                  _SettingsTile(
-                    icon: LucideIcons.info,
-                    title: 'About Lumisense',
-                    subtitle: 'Version 1.0.0 · Smart Library Monitor',
-                    trailing: '',
-                    color: AppColors.textTertiary,
-                  ),
-
+                  
                   const SizedBox(height: 40),
                 ],
               ),
@@ -260,53 +206,44 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Widget _buildNoiseRangeSection() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
+        boxShadow: AppColors.shadowLow,
       ),
       child: Column(
         children: [
           _SliderRow(
-            icon: LucideIcons.volume1,
             label: 'Warning Threshold',
             value: _noiseWarningThreshold,
             min: 40,
             max: 80,
             unit: 'dB',
-            color: AppColors.warning,
             onChanged: (v) {
               setState(() => _noiseWarningThreshold = v);
               _markDirty();
             },
           ),
-          const SizedBox(height: 20),
-          Divider(color: AppColors.surfaceHighlight.withValues(alpha: 0.5)),
-          const SizedBox(height: 20),
+          const Divider(color: AppColors.borderSubtle, height: 1),
           _SliderRow(
-            icon: LucideIcons.volumeX,
             label: 'Critical Threshold',
             value: _noiseCriticalThreshold,
             min: 60,
             max: 100,
             unit: 'dB',
-            color: AppColors.error,
             onChanged: (v) {
               setState(() => _noiseCriticalThreshold = v);
               _markDirty();
             },
           ),
-          const SizedBox(height: 20),
-          Divider(color: AppColors.surfaceHighlight.withValues(alpha: 0.5)),
-          const SizedBox(height: 20),
+          const Divider(color: AppColors.borderSubtle, height: 1),
           _SliderRow(
-            icon: LucideIcons.thermometer,
-            label: 'Temperature Threshold',
+            label: 'Temperature Limit',
             value: _tempThreshold,
             min: 20,
             max: 40,
             unit: '°C',
-            color: AppColors.warning,
             onChanged: (v) {
               setState(() => _tempThreshold = v);
               _markDirty();
@@ -325,96 +262,77 @@ class _SettingsPageState extends State<SettingsPage> {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
+        boxShadow: AppColors.shadowLow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Select alarm pattern, duration, and cooldown period between triggers.',
+            'SIGNAL PATTERN',
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
               color: AppColors.textTertiary,
-              height: 1.5,
+              letterSpacing: 1.0,
             ),
           ),
-          const SizedBox(height: 24),
-
-          // Pattern selector
-          Text(
-            'ALARM PATTERN',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textTertiary,
-              letterSpacing: 0.8,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
+          const SizedBox(height: 16),
+          Row(
             children: List.generate(_patternNames.length, (i) {
               final isSelected = i == _selectedPattern;
-              return GestureDetector(
-                onTap: () {
-                  setState(() => _selectedPattern = i);
-                  _markDirty();
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 18,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? AppColors.primary
-                        : AppColors.background,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    _patternNames[i],
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: isSelected
-                          ? AppColors.background
-                          : AppColors.textSecondary,
+              return Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(right: i < _patternNames.length - 1 ? 8.0 : 0),
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() => _selectedPattern = i);
+                      _markDirty();
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: isSelected ? AppColors.primary : AppColors.surfaceElevated,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        _patternNames[i],
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: isSelected ? Colors.white : AppColors.textSecondary,
+                        ),
+                      ),
                     ),
                   ),
                 ),
               );
             }),
           ),
-
-          const SizedBox(height: 28),
-          Divider(color: AppColors.surfaceHighlight.withValues(alpha: 0.5)),
-          const SizedBox(height: 20),
-
+          const SizedBox(height: 24),
+          const Divider(color: AppColors.borderSubtle, height: 1),
+          const SizedBox(height: 8),
           _SliderRow(
-            icon: LucideIcons.timer,
             label: 'Alarm Duration',
             value: _alarmDuration,
             min: 1,
             max: 30,
-            unit: 'sec',
-            color: AppColors.primary,
+            unit: 's',
+            hidePadding: true,
             onChanged: (v) {
               setState(() => _alarmDuration = v);
               _markDirty();
             },
           ),
-          const SizedBox(height: 20),
-          Divider(color: AppColors.surfaceHighlight.withValues(alpha: 0.5)),
-          const SizedBox(height: 20),
+          const Divider(color: AppColors.borderSubtle, height: 1),
           _SliderRow(
-            icon: LucideIcons.clock,
             label: 'Cooldown Period',
             value: _alarmCooldown,
             min: 5,
             max: 120,
-            unit: 'sec',
-            color: AppColors.textSecondary,
+            unit: 's',
+            hidePadding: true,
             onChanged: (v) {
               setState(() => _alarmCooldown = v);
               _markDirty();
@@ -430,113 +348,92 @@ class _SettingsPageState extends State<SettingsPage> {
 
 class _SectionHeader extends StatelessWidget {
   final String title;
-  final IconData icon;
-  const _SectionHeader({required this.title, required this.icon});
+  const _SectionHeader({required this.title});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: AppColors.textTertiary),
-        const SizedBox(width: 8),
-        Text(
-          title.toUpperCase(),
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textTertiary,
-            letterSpacing: 1,
-          ),
-        ),
-      ],
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.w600,
+        color: AppColors.textPrimary,
+      ),
     );
   }
 }
 
 class _SliderRow extends StatelessWidget {
-  final IconData icon;
   final String label;
   final double value;
   final double min;
   final double max;
   final String unit;
-  final Color color;
   final ValueChanged<double> onChanged;
+  final bool hidePadding;
 
   const _SliderRow({
-    required this.icon,
     required this.label,
     required this.value,
     required this.min,
     required this.max,
     required this.unit,
-    required this.color,
     required this.onChanged,
+    this.hidePadding = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(9),
-          ),
-          child: Icon(icon, size: 18, color: color),
-        ),
-        const SizedBox(width: 16),
-        SizedBox(
-          width: 150,
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: AppColors.textPrimary,
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: hidePadding ? 8.0 : 16.0),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 140,
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textSecondary,
+              ),
             ),
           ),
-        ),
-        Expanded(
-          child: SliderTheme(
-            data: SliderThemeData(
-              activeTrackColor: color,
-              inactiveTrackColor: AppColors.surfaceHighlight,
-              thumbColor: color,
-              overlayColor: color.withValues(alpha: 0.15),
-              trackHeight: 4,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
-            ),
-            child: Slider(
-              value: value,
-              min: min,
-              max: max,
-              divisions: ((max - min) * 2).toInt(),
-              onChanged: onChanged,
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Container(
-          width: 72,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: AppColors.background,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            '${value.toStringAsFixed(1)} $unit',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: color,
+          Expanded(
+            child: SliderTheme(
+              data: SliderThemeData(
+                activeTrackColor: AppColors.primary,
+                inactiveTrackColor: AppColors.surfaceElevated,
+                thumbColor: AppColors.primary,
+                overlayColor: AppColors.primary.withValues(alpha: 0.1),
+                trackHeight: 3,
+                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+              ),
+              child: Slider(
+                value: value,
+                min: min,
+                max: max,
+                divisions: ((max - min) * 2).toInt(),
+                onChanged: onChanged,
+              ),
             ),
           ),
-        ),
-      ],
+          const SizedBox(width: 16),
+          SizedBox(
+            width: 60,
+            child: Text(
+              '${value.toStringAsFixed(1)} $unit',
+              textAlign: TextAlign.right,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+                fontFeatures: [FontFeature.tabularFigures()],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -545,15 +442,15 @@ class _SettingsTile extends StatefulWidget {
   final IconData icon;
   final String title;
   final String subtitle;
-  final String trailing;
-  final Color color;
+  final String statusText;
+  final bool isPositive;
 
   const _SettingsTile({
     required this.icon,
     required this.title,
     required this.subtitle,
-    required this.trailing,
-    required this.color,
+    required this.statusText,
+    required this.isPositive,
   });
 
   @override
@@ -569,28 +466,13 @@ class _SettingsTileState extends State<_SettingsTile> {
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       cursor: SystemMouseCursors.click,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: _isHovered
-              ? AppColors.surfaceHighlight.withValues(alpha: 0.6)
-              : AppColors.surface,
-          borderRadius: BorderRadius.circular(14),
-        ),
+      child: Container(
+        color: _isHovered ? AppColors.surfaceElevated : Colors.transparent,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         child: Row(
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: widget.color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(widget.icon, size: 20, color: widget.color),
-            ),
-            const SizedBox(width: 16),
+            Icon(widget.icon, size: 18, color: AppColors.textSecondary),
+            const SizedBox(width: 20),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -603,37 +485,27 @@ class _SettingsTileState extends State<_SettingsTile> {
                       color: AppColors.textPrimary,
                     ),
                   ),
-                  const SizedBox(height: 3),
+                  const SizedBox(height: 4),
                   Text(
                     widget.subtitle,
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       color: AppColors.textTertiary,
                     ),
                   ),
                 ],
               ),
             ),
-            if (widget.trailing.isNotEmpty)
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: widget.color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  widget.trailing,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: widget.color,
-                  ),
+            if (widget.statusText.isNotEmpty)
+              Text(
+                widget.statusText,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: widget.isPositive ? AppColors.primary : AppColors.textTertiary,
                 ),
               ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 16),
             const Icon(
               LucideIcons.chevronRight,
               size: 16,

@@ -64,7 +64,7 @@ class _DepartmentPageState extends State<DepartmentPage> {
           // Content
           Expanded(
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Left: Charts
                 Expanded(
@@ -81,17 +81,15 @@ class _DepartmentPageState extends State<DepartmentPage> {
                   ),
                 ),
                 const SizedBox(width: 16),
-                // Right: Summary
+                // Right: Summary — stretches full height
                 Expanded(
                   flex: 1,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        const SummaryPanel(),
-                        const SizedBox(height: 16),
-                        _buildEnvSummaryButton(context, dept),
-                      ],
-                    ),
+                  child: Column(
+                    children: [
+                      const Expanded(child: SummaryPanel()),
+                      const SizedBox(height: 16),
+                      _buildEnvSummaryButton(context, dept),
+                    ],
                   ),
                 ),
               ],

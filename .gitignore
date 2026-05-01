@@ -33,6 +33,17 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# ML / training artifacts (do not commit)
+*.pkl
+*.joblib
+*.h5
+*.pt
+*.pth
+*.onnx
+ai_training/models/
+ai_training/venv/
+venv/
+
 # Symbolication related
 app.*.symbols
 

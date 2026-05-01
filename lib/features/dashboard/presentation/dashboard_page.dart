@@ -8,44 +8,29 @@ import 'widgets/summary_panel.dart';
 import '../../../core/domain/entities/zone_snapshot.dart';
 import '../../../core/domain/value_objects/noise_level.dart';
 
-class DashboardPage extends StatelessWidget {
+import '../../../core/services/supabase/supabase_telemetry_repository.dart';
+
+class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
+
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  final _repository = SupabaseTelemetryRepository();
+  late final Stream<List<ZoneSnapshot>> _liveZonesStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _repository.initialize();
+    _liveZonesStream = _repository.watchLiveZones();
+  }
 
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final mockZones = [
-      ZoneSnapshot(
-        zoneId: 'it',
-        zoneName: 'IT Department',
-        temperatureC: 24.5,
-        noiseDb: 42.3,
-        noiseLevel: NoiseLevel.quiet,
-        soundClass: 'ambient',
-        alertRaised: false,
-        updatedAt: now,
-      ),
-      ZoneSnapshot(
-        zoneId: 'cs',
-        zoneName: 'CS Department',
-        temperatureC: 26.1,
-        noiseDb: 58.7,
-        noiseLevel: NoiseLevel.normal,
-        soundClass: 'conversation',
-        alertRaised: false,
-        updatedAt: now.subtract(const Duration(seconds: 15)),
-      ),
-      ZoneSnapshot(
-        zoneId: 'eng',
-        zoneName: 'Engineering Department',
-        temperatureC: 28.9,
-        noiseDb: 73.2,
-        noiseLevel: NoiseLevel.critical,
-        soundClass: 'loud_talking',
-        alertRaised: true,
-        updatedAt: now.subtract(const Duration(seconds: 5)),
-      ),
-    ];
 
     return ColoredBox(
       color: AppColors.workspaceBg,
@@ -88,31 +73,39 @@ class DashboardPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Expanded(
-                    flex: 6,
-                    child: FloorPlanWidget(),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    flex: 3,
-                    child: _LiveZonesPanel(zones: mockZones),
-                  ),
-                  const SizedBox(width: 16),
-                  const Expanded(
-                    flex: 3,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        ActionCenter(),
-                        SizedBox(height: 16),
-                        Expanded(child: SummaryPanel()),
-                      ],
-                    ),
-                  ),
-                ],
+              child: StreamBuilder<List<ZoneSnapshot>>(
+                stream: _liveZonesStream,
+                builder: (context, snapshot) {
+                  final liveZones = snapshot.data;
+                  final displayZones = _mergeWithDefaults(liveZones ?? []);
+
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        flex: 6,
+                        child: FloorPlanWidget(liveZones: liveZones),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        flex: 3,
+                        child: _LiveZonesPanel(zones: displayZones),
+                      ),
+                      const SizedBox(width: 16),
+                      const Expanded(
+                        flex: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ActionCenter(),
+                            SizedBox(height: 16),
+                            Expanded(child: SummaryPanel()),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ],
@@ -121,8 +114,39 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
+  /// Ensures all 3 department zones are always visible.
+  /// Live data overrides defaults; missing zones get placeholders.
+  List<ZoneSnapshot> _mergeWithDefaults(List<ZoneSnapshot> live) {
+    const defaultZones = [
+      ('1', 'IT Department'),
+      ('2', 'CS Department'),
+      ('3', 'Engineering Department'),
+    ];
 
- 
+    final Map<String, ZoneSnapshot> merged = {};
+
+    // Start with defaults
+    for (final (id, name) in defaultZones) {
+      merged[id] = ZoneSnapshot(
+        zoneId: id,
+        zoneName: name,
+        temperatureC: 25.0,
+        noiseDb: 0,
+        noiseLevel: NoiseLevel.quiet,
+        soundClass: 'waiting',
+        alertRaised: false,
+        updatedAt: DateTime.now(),
+      );
+    }
+
+    // Override with live data
+    for (final z in live) {
+      merged[z.zoneId] = z;
+    }
+
+    return merged.values.toList();
+  }
+
   String _formattedDate(DateTime dt) {
     const months = [
       'January', 'February', 'March', 'April', 'May', 'June',

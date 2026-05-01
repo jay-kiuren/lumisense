@@ -140,7 +140,7 @@ class _SummaryRow extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               SizedBox(
-                width: 88,
+                width: 100,
                 child: Text(
                   value,
                   textAlign: TextAlign.right,

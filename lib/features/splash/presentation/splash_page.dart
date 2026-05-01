@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import '../../shared/presentation/main_shell_page.dart';
+import '../../auth/presentation/login_page.dart';
 import '../../../core/theme/app_colors.dart';
 
 class SplashPage extends StatefulWidget {
@@ -43,7 +43,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
           Navigator.of(context).pushReplacement(
             PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) =>
-                  const MainShellPage(),
+                  const LoginPage(),
               transitionsBuilder: (context, animation, secondaryAnimation, child) {
                 return FadeTransition(opacity: animation, child: child);
               },

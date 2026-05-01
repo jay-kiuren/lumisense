@@ -118,7 +118,7 @@ class AppSidebar extends StatelessWidget {
                 ),
                 _NavItem(
                   icon: LucideIcons.barChart3,
-                  label: 'Statistics Report',
+                  label: 'Logs',
                   isSelected: selectedIndex == 2,
                   isCollapsed: isCollapsed,
                   onTap: () => onSelected(2),
