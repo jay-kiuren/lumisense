@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../auth/presentation/login_page.dart';
 
 class AppSidebar extends StatelessWidget {
   static const double _expandedWidth = 236;
@@ -144,7 +146,7 @@ class AppSidebar extends StatelessWidget {
                   label: 'Log out',
                   isSelected: false,
                   isCollapsed: isCollapsed,
-                  onTap: () {},
+                  onTap: () => _confirmLogout(context),
                   isDanger: true,
                 ),
                 const SizedBox(height: 24),
@@ -154,6 +156,81 @@ class AppSidebar extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _confirmLogout(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(LucideIcons.logOut, size: 20, color: AppColors.error),
+            SizedBox(width: 10),
+            Text(
+              'Log out',
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Are you sure you want to log out of LumiSense?',
+          style: TextStyle(
+            color: AppColors.textSecondary,
+            fontSize: 14,
+            height: 1.5,
+          ),
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.textSecondary,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            ),
+            child: const Text('Cancel', style: TextStyle(fontWeight: FontWeight.w500)),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: const Text('Log out', style: TextStyle(fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      await Supabase.instance.client.auth.signOut();
+    } catch (_) {
+      // Sign-out network errors are non-fatal — proceed to login anyway
+    }
+
+    if (context.mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              const LoginPage(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+              FadeTransition(opacity: animation, child: child),
+          transitionDuration: const Duration(milliseconds: 400),
+        ),
+        (route) => false, // clears entire navigation stack
+      );
+    }
   }
 
   Widget _buildLogo() {

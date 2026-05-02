@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import '../../../../core/services/settings_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/services/supabase/supabase_telemetry_repository.dart';
 
@@ -239,21 +240,22 @@ class _ActionCenterState extends State<ActionCenter> {
     if (_triggering.contains(label)) return;
 
     setState(() => _triggering.add(label));
-    await _repo.triggerBuzzerOverride(zoneId: zoneId, durationSeconds: 5);
+    final durationSec = SettingsService.instance.settings.value.alarmDurationSec.round();
+    await _repo.triggerBuzzerOverride(zoneId: zoneId, durationSeconds: durationSec);
 
     // Show a brief snackbar confirmation
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Buzzer triggered for $label (5 s)'),
+          content: Text('Buzzer triggered for $label (${durationSec}s)'),
           duration: const Duration(seconds: 3),
           backgroundColor: AppColors.surfaceElevated,
         ),
       );
     }
 
-    // Re-enable after 6 s (slightly longer than the trigger duration)
-    await Future.delayed(const Duration(seconds: 6));
+    // Re-enable after durationSec + 1 s buffer
+    await Future.delayed(Duration(seconds: durationSec + 1));
     if (mounted) setState(() => _triggering.remove(label));
   }
 }

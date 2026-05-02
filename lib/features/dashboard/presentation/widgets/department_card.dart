@@ -2,15 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../core/domain/entities/zone_snapshot.dart';
 import '../../../../core/domain/value_objects/noise_level.dart';
+import '../../../../core/services/settings_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import 'sound_confidence_graph.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  THRESHOLD CONSTANTS — must match supabase_telemetry_repository.dart
-// ─────────────────────────────────────────────────────────────────────────────
-const double _kSoundMaxDb = 55.0;
-const double _kTempMinC   = 19.0;
-const double _kTempMaxC   = 28.0;
+// _kTempMinC is fixed (hardware/environment spec — not user-adjustable)
+const double _kTempMinC = 19.0;
 
 class DepartmentCard extends StatelessWidget {
   const DepartmentCard({super.key, required this.snapshot});
@@ -26,9 +23,10 @@ class DepartmentCard extends StatelessWidget {
 
     final status = _statusInfo(snapshot.noiseLevel);
 
-    // Threshold checks for visual indicators
-    final bool soundBreached = snapshot.noiseDb > _kSoundMaxDb;
-    final bool tempHot       = snapshot.temperatureC > _kTempMaxC;
+    // Threshold checks for visual indicators — use live settings
+    final s = SettingsService.instance.settings.value;
+    final bool soundBreached = snapshot.noiseDb > s.noiseWarningThreshold;
+    final bool tempHot       = snapshot.temperatureC > s.tempThreshold;
     final bool tempCold      = snapshot.temperatureC < _kTempMinC;
     final bool tempBreached  = tempHot || tempCold;
 
@@ -89,7 +87,7 @@ class DepartmentCard extends StatelessWidget {
           value: '${snapshot.noiseDb.toStringAsFixed(1)} dB',
           color: soundBreached ? AppColors.warning : AppColors.textPrimary,
           breached: soundBreached,
-          breachHint: 'Exceeds ${_kSoundMaxDb.toStringAsFixed(0)} dB limit',
+          breachHint: 'Exceeds ${s.noiseWarningThreshold.toStringAsFixed(0)} dB limit',
         ),
         _MetricRow(
           icon: LucideIcons.thermometer,
@@ -98,7 +96,7 @@ class DepartmentCard extends StatelessWidget {
           color: tempBreached ? AppColors.warning : AppColors.textPrimary,
           breached: tempBreached,
           breachHint: tempHot
-              ? 'Above ${_kTempMaxC.toStringAsFixed(0)}°C max'
+              ? 'Above ${s.tempThreshold.toStringAsFixed(0)}°C max'
               : tempCold
                   ? 'Below ${_kTempMinC.toStringAsFixed(0)}°C min'
                   : '',
@@ -250,10 +248,11 @@ class _ThresholdBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = SettingsService.instance.settings.value;
     final parts = <String>[];
-    if (soundBreached) parts.add('Sound >${_kSoundMaxDb.toStringAsFixed(0)} dB');
+    if (soundBreached) parts.add('Sound >${s.noiseWarningThreshold.toStringAsFixed(0)} dB');
     if (tempBreached) {
-      parts.add('Temp outside ${_kTempMinC.toStringAsFixed(0)}–${_kTempMaxC.toStringAsFixed(0)}°C');
+      parts.add('Temp outside ${_kTempMinC.toStringAsFixed(0)}–${s.tempThreshold.toStringAsFixed(0)}°C');
     }
 
     return Container(

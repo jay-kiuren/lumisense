@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import '../../../core/models/app_settings.dart';
+import '../../../core/services/settings_service.dart';
 import '../../../core/theme/app_colors.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -10,35 +12,71 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  // Noise range adjustments
-  double _noiseWarningThreshold = 60.0;
-  double _noiseCriticalThreshold = 72.0;
-  double _tempThreshold = 26.0;
-
-  // Alarm pattern
-  int _selectedPattern = 0;
-  final _patternNames = ['Continuous', 'Pulsing', 'Escalating', 'Short Burst'];
-  double _alarmDuration = 5.0;
-  double _alarmCooldown = 30.0;
+  // Working copy — mutated by sliders/buttons; flushed to Supabase on Save
+  late AppSettings _draft;
 
   bool _hasUnsavedChanges = false;
+  bool _isSaving = false;
+
+  final _patternNames = ['Continuous', 'Pulsing', 'Escalating', 'Short Burst'];
+  final _patternValues = ['continuous', 'pulsing', 'escalating', 'short_burst'];
+
+  @override
+  void initState() {
+    super.initState();
+    // Start from whatever is already loaded (SettingsService.load() was called
+    // in main.dart so this is fresh from Supabase at startup).
+    _draft = SettingsService.instance.settings.value;
+
+    // If settings reload from Supabase while we're on this page and there
+    // are no unsaved changes, adopt the fresh values.
+    SettingsService.instance.settings.addListener(_onSettingsUpdated);
+  }
+
+  @override
+  void dispose() {
+    SettingsService.instance.settings.removeListener(_onSettingsUpdated);
+    super.dispose();
+  }
+
+  void _onSettingsUpdated() {
+    if (!_hasUnsavedChanges) {
+      setState(() => _draft = SettingsService.instance.settings.value);
+    }
+  }
 
   void _markDirty() {
     if (!_hasUnsavedChanges) setState(() => _hasUnsavedChanges = true);
   }
 
-  void _saveAll() {
-    setState(() => _hasUnsavedChanges = false);
+  Future<void> _saveAll() async {
+    setState(() => _isSaving = true);
+    final ok = await SettingsService.instance.save(_draft);
+    if (!mounted) return;
+    setState(() {
+      _isSaving = false;
+      if (ok) _hasUnsavedChanges = false;
+    });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Row(
+        content: Row(
           children: [
-            Icon(LucideIcons.check, color: AppColors.background, size: 16),
-            SizedBox(width: 10),
-            Text('Settings saved', style: TextStyle(color: AppColors.background, fontWeight: FontWeight.w600)),
+            Icon(
+              ok ? LucideIcons.check : LucideIcons.alertTriangle,
+              color: AppColors.background,
+              size: 16,
+            ),
+            const SizedBox(width: 10),
+            Text(
+              ok ? 'Settings saved' : 'Save failed — check connection',
+              style: const TextStyle(
+                color: AppColors.background,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
-        backgroundColor: AppColors.textPrimary,
+        backgroundColor: ok ? AppColors.textPrimary : AppColors.error,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         margin: const EdgeInsets.all(24),
@@ -68,8 +106,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   Text(
                     'System configuration and calibration',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textTertiary,
-                    ),
+                          color: AppColors.textTertiary,
+                        ),
                   ),
                 ],
               ),
@@ -89,7 +127,7 @@ class _SettingsPageState extends State<SettingsPage> {
               Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: _hasUnsavedChanges ? _saveAll : null,
+                  onTap: (_hasUnsavedChanges && !_isSaving) ? _saveAll : null,
                   borderRadius: BorderRadius.circular(8),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
@@ -102,31 +140,41 @@ class _SettingsPageState extends State<SettingsPage> {
                           ? AppColors.primary
                           : AppColors.surfaceElevated,
                       borderRadius: BorderRadius.circular(8),
-                      boxShadow: _hasUnsavedChanges ? AppColors.shadowLow : null,
+                      boxShadow:
+                          _hasUnsavedChanges ? AppColors.shadowLow : null,
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          LucideIcons.save,
-                          size: 14,
-                          color: _hasUnsavedChanges
-                              ? Colors.white
-                              : AppColors.textTertiary,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Save All',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: _hasUnsavedChanges
-                                ? Colors.white
-                                : AppColors.textTertiary,
+                    child: _isSaving
+                        ? const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                LucideIcons.save,
+                                size: 14,
+                                color: _hasUnsavedChanges
+                                    ? Colors.white
+                                    : AppColors.textTertiary,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Save All',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: _hasUnsavedChanges
+                                      ? Colors.white
+                                      : AppColors.textTertiary,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
                   ),
                 ),
               ),
@@ -168,7 +216,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         const _SettingsTile(
                           icon: LucideIcons.database,
                           title: 'Firebase Realtime Database',
-                          subtitle: 'Primary telemetry storage and synchronization',
+                          subtitle:
+                              'Primary telemetry storage and synchronization',
                           statusText: 'Connected',
                           isPositive: true,
                         ),
@@ -191,7 +240,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 40),
                 ],
               ),
@@ -216,36 +265,42 @@ class _SettingsPageState extends State<SettingsPage> {
         children: [
           _SliderRow(
             label: 'Warning Threshold',
-            value: _noiseWarningThreshold,
+            value: _draft.noiseWarningThreshold,
             min: 40,
             max: 80,
             unit: 'dB',
             onChanged: (v) {
-              setState(() => _noiseWarningThreshold = v);
+              setState(() {
+                _draft = _draft.copyWith(noiseWarningThreshold: v);
+              });
               _markDirty();
             },
           ),
           const Divider(color: AppColors.borderSubtle, height: 1),
           _SliderRow(
             label: 'Critical Threshold',
-            value: _noiseCriticalThreshold,
+            value: _draft.noiseCriticalThreshold,
             min: 60,
             max: 100,
             unit: 'dB',
             onChanged: (v) {
-              setState(() => _noiseCriticalThreshold = v);
+              setState(() {
+                _draft = _draft.copyWith(noiseCriticalThreshold: v);
+              });
               _markDirty();
             },
           ),
           const Divider(color: AppColors.borderSubtle, height: 1),
           _SliderRow(
             label: 'Temperature Limit',
-            value: _tempThreshold,
+            value: _draft.tempThreshold,
             min: 20,
             max: 40,
             unit: '°C',
             onChanged: (v) {
-              setState(() => _tempThreshold = v);
+              setState(() {
+                _draft = _draft.copyWith(tempThreshold: v);
+              });
               _markDirty();
             },
           ),
@@ -257,6 +312,8 @@ class _SettingsPageState extends State<SettingsPage> {
   // ── Alarm Pattern Section ──
 
   Widget _buildAlarmPatternSection() {
+    final selectedIndex = _patternValues.indexOf(_draft.alarmPattern);
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -279,20 +336,26 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: 16),
           Row(
             children: List.generate(_patternNames.length, (i) {
-              final isSelected = i == _selectedPattern;
+              final isSelected = i == selectedIndex;
               return Expanded(
                 child: Padding(
-                  padding: EdgeInsets.only(right: i < _patternNames.length - 1 ? 8.0 : 0),
+                  padding: EdgeInsets.only(
+                      right: i < _patternNames.length - 1 ? 8.0 : 0),
                   child: GestureDetector(
                     onTap: () {
-                      setState(() => _selectedPattern = i);
+                      setState(() {
+                        _draft = _draft.copyWith(
+                            alarmPattern: _patternValues[i]);
+                      });
                       _markDirty();
                     },
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 150),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: isSelected ? AppColors.primary : AppColors.surfaceElevated,
+                        color: isSelected
+                            ? AppColors.primary
+                            : AppColors.surfaceElevated,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       alignment: Alignment.center,
@@ -301,7 +364,9 @@ class _SettingsPageState extends State<SettingsPage> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: isSelected ? Colors.white : AppColors.textSecondary,
+                          color: isSelected
+                              ? Colors.white
+                              : AppColors.textSecondary,
                         ),
                       ),
                     ),
@@ -315,26 +380,30 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: 8),
           _SliderRow(
             label: 'Alarm Duration',
-            value: _alarmDuration,
+            value: _draft.alarmDurationSec,
             min: 1,
             max: 30,
             unit: 's',
             hidePadding: true,
             onChanged: (v) {
-              setState(() => _alarmDuration = v);
+              setState(() {
+                _draft = _draft.copyWith(alarmDurationSec: v);
+              });
               _markDirty();
             },
           ),
           const Divider(color: AppColors.borderSubtle, height: 1),
           _SliderRow(
             label: 'Cooldown Period',
-            value: _alarmCooldown,
+            value: _draft.alarmCooldownSec,
             min: 5,
             max: 120,
             unit: 's',
             hidePadding: true,
             onChanged: (v) {
-              setState(() => _alarmCooldown = v);
+              setState(() {
+                _draft = _draft.copyWith(alarmCooldownSec: v);
+              });
               _markDirty();
             },
           ),
@@ -502,7 +571,9 @@ class _SettingsTileState extends State<_SettingsTile> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: widget.isPositive ? AppColors.primary : AppColors.textTertiary,
+                  color: widget.isPositive
+                      ? AppColors.primary
+                      : AppColors.textTertiary,
                 ),
               ),
             const SizedBox(width: 16),

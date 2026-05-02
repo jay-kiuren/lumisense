@@ -5,14 +5,13 @@ import '../../domain/entities/zone_snapshot.dart';
 import '../../domain/repositories/telemetry_repository.dart';
 import '../../domain/value_objects/noise_level.dart';
 import '../ml_inference_service.dart';
+import '../settings_service.dart';
 
 // ─────────────────────────────────────────────────────────────
-//  THRESHOLD CONSTANTS (school-environment spec)
+//  FIXED CONSTANTS (not user-configurable)
 // ─────────────────────────────────────────────────────────────
-const double _kSoundMaxDb        = 55.0;   // dB — hard ceiling for school zones
-const double _kTempMinC          = 19.0;   // °C — lower bound for normal
-const double _kTempMaxC          = 28.0;   // °C — upper bound for normal
-const Duration _kInactiveDuration = Duration(minutes: 10); // mark zone inactive
+const double _kTempMinC           = 19.0;   // °C — lower bound (fixed spec)
+const Duration _kInactiveDuration = Duration(minutes: 10);
 
 /// Connects to Supabase and listens for real-time sensor data.
 /// Uses the full LUMISENSE SQL schema: sensor_readings, zone_status,
@@ -87,9 +86,10 @@ class SupabaseTelemetryRepository implements TelemetryRepository {
           // ── dB CONVERSION ───────────────────────────────────
           final double rawNoiseDb = rms > 0 ? 20 * _log10(rms / 1.0) : 0;
 
-          // ── THRESHOLD-AWARE NOISE LEVEL ─────────────────────
-          final bool soundBreached  = rawNoiseDb > _kSoundMaxDb;
-          final bool tempTooHot     = temperatureC > _kTempMaxC;
+          // ── SETTINGS-DRIVEN THRESHOLDS ───────────────────────
+          final s = SettingsService.instance.settings.value;
+          final bool soundBreached  = rawNoiseDb > s.noiseWarningThreshold;
+          final bool tempTooHot     = temperatureC > s.tempThreshold;
           final bool tempTooCold    = temperatureC < _kTempMinC;
           final bool tempBreached   = tempTooHot || tempTooCold;
 
@@ -270,17 +270,19 @@ class SupabaseTelemetryRepository implements TelemetryRepository {
 
       // Threshold-specific audit log entries (sound / temp)
       if (soundBreached) {
+        final s = SettingsService.instance.settings.value;
         await _logThresholdBreach(
           zoneId: zoneId,
           event:
               'Sound threshold exceeded: ${rawNoiseDb.toStringAsFixed(1)} dB '
-              '(max ${_kSoundMaxDb.toStringAsFixed(0)} dB)',
+              '(max ${s.noiseWarningThreshold.toStringAsFixed(0)} dB)',
           severity: 'warning',
         );
       }
       if (tempBreached) {
+        final s = SettingsService.instance.settings.value;
         final rangeHint = tempTooHot
-            ? 'above max ${_kTempMaxC.toStringAsFixed(0)}°C'
+            ? 'above max ${s.tempThreshold.toStringAsFixed(0)}°C'
             : 'below min ${_kTempMinC.toStringAsFixed(0)}°C';
         await _logThresholdBreach(
           zoneId: zoneId,
@@ -349,8 +351,9 @@ class SupabaseTelemetryRepository implements TelemetryRepository {
   //  Helpers
   // ─────────────────────────────────────────────────────────
   NoiseLevel _resolveNoiseLevel(double db) {
-    if (db >= 72) return NoiseLevel.critical;
-    if (db >= 60) return NoiseLevel.warning;
+    final s = SettingsService.instance.settings.value;
+    if (db >= s.noiseCriticalThreshold) return NoiseLevel.critical;
+    if (db >= s.noiseWarningThreshold)  return NoiseLevel.warning;
     if (db >= 45) return NoiseLevel.normal;
     return NoiseLevel.quiet;
   }
@@ -381,14 +384,15 @@ class SupabaseTelemetryRepository implements TelemetryRepository {
     required bool tempBreached,
     required bool tempTooHot,
   }) {
+    final s = SettingsService.instance.settings.value;
     final parts = <String>[];
     if (soundBreached) {
       parts.add('Sound ${noiseDb.toStringAsFixed(1)} dB exceeds '
-          '${_kSoundMaxDb.toStringAsFixed(0)} dB limit');
+          '${s.noiseWarningThreshold.toStringAsFixed(0)} dB limit');
     }
     if (tempBreached) {
       parts.add('Temp ${temperatureC.toStringAsFixed(1)}°C is '
-          '${tempTooHot ? "above max ${_kTempMaxC.toStringAsFixed(0)}°C" : "below min ${_kTempMinC.toStringAsFixed(0)}°C"}');
+          '${tempTooHot ? "above max ${s.tempThreshold.toStringAsFixed(0)}°C" : "below min ${_kTempMinC.toStringAsFixed(0)}°C"}');
     }
     if (parts.isEmpty) {
       parts.add('$noiseLabel detected at ${noiseDb.toStringAsFixed(1)} dB');
