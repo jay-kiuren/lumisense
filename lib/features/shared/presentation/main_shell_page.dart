@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../dashboard/presentation/dashboard_page.dart';
 import '../../department/presentation/department_page.dart';
+import '../../statistics/presentation/statistics_page.dart';
 import '../../statistics/presentation/statistics_report_page.dart';
 import '../../settings/presentation/settings_page.dart';
 import 'widgets/sidebar.dart';
@@ -83,8 +84,10 @@ class _MainShellPageState extends State<MainShellPage> {
       case 1:
         return const DepartmentPage();
       case 2:
-        return const StatisticsReportPage();
+        return const StatisticsPage();
       case 3:
+        return const StatisticsReportPage();
+      case 4:
         return const SettingsPage();
       default:
         return const DashboardPage();
