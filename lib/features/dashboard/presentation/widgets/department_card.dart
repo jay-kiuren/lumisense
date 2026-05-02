@@ -5,6 +5,13 @@ import '../../../../core/domain/value_objects/noise_level.dart';
 import '../../../../core/theme/app_colors.dart';
 import 'sound_confidence_graph.dart';
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  THRESHOLD CONSTANTS — must match supabase_telemetry_repository.dart
+// ─────────────────────────────────────────────────────────────────────────────
+const double _kSoundMaxDb = 55.0;
+const double _kTempMinC   = 19.0;
+const double _kTempMaxC   = 28.0;
+
 class DepartmentCard extends StatelessWidget {
   const DepartmentCard({super.key, required this.snapshot});
 
@@ -12,12 +19,23 @@ class DepartmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ── INACTIVE STATE ───────────────────────────────────────
+    if (snapshot.isInactive) {
+      return _InactiveZoneCard(snapshot: snapshot);
+    }
+
     final status = _statusInfo(snapshot.noiseLevel);
+
+    // Threshold checks for visual indicators
+    final bool soundBreached = snapshot.noiseDb > _kSoundMaxDb;
+    final bool tempHot       = snapshot.temperatureC > _kTempMaxC;
+    final bool tempCold      = snapshot.temperatureC < _kTempMinC;
+    final bool tempBreached  = tempHot || tempCold;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header row
+        // ── HEADER ──────────────────────────────────────────
         Row(
           children: [
             Container(
@@ -56,10 +74,7 @@ class DepartmentCard extends StatelessWidget {
                 ],
               ),
             ),
-            _StatusBadge(
-              label: status.label,
-              color: status.color,
-            ),
+            _StatusBadge(label: status.label, color: status.color),
           ],
         ),
 
@@ -67,40 +82,48 @@ class DepartmentCard extends StatelessWidget {
         const Divider(color: AppColors.separator, thickness: 0.5, height: 1),
         const SizedBox(height: 8),
 
-        // Metrics vertically structured
+        // ── METRICS ──────────────────────────────────────────
         _MetricRow(
           icon: LucideIcons.volume2,
           label: 'Sound Level',
           value: '${snapshot.noiseDb.toStringAsFixed(1)} dB',
-          color: AppColors.textPrimary,
+          color: soundBreached ? AppColors.warning : AppColors.textPrimary,
+          breached: soundBreached,
+          breachHint: 'Exceeds ${_kSoundMaxDb.toStringAsFixed(0)} dB limit',
         ),
         _MetricRow(
           icon: LucideIcons.thermometer,
           label: 'Temperature',
           value: '${snapshot.temperatureC.toStringAsFixed(1)}°C',
-          color: AppColors.textPrimary,
+          color: tempBreached ? AppColors.warning : AppColors.textPrimary,
+          breached: tempBreached,
+          breachHint: tempHot
+              ? 'Above ${_kTempMaxC.toStringAsFixed(0)}°C max'
+              : tempCold
+                  ? 'Below ${_kTempMinC.toStringAsFixed(0)}°C min'
+                  : '',
         ),
+
+        // ── THRESHOLD BANNER (shows when any limit is exceeded) ──
+        if (soundBreached || tempBreached) ...[
+          const SizedBox(height: 4),
+          _ThresholdBanner(soundBreached: soundBreached, tempBreached: tempBreached),
+        ],
 
         const SizedBox(height: 8),
         const Divider(color: AppColors.separator, thickness: 0.5, height: 1),
 
-        _SoundTypeSection(
-          soundProfile: snapshot.soundProfile,
-        ),
+        _SoundTypeSection(soundProfile: snapshot.soundProfile),
       ],
     );
   }
 
   IconData _iconForZone(String zoneId) {
     switch (zoneId) {
-      case 'it':
-        return LucideIcons.monitorSpeaker;
-      case 'cs':
-        return LucideIcons.server;
-      case 'eng':
-        return LucideIcons.cpu;
-      default:
-        return LucideIcons.building;
+      case '1': return LucideIcons.monitorSpeaker;
+      case '2': return LucideIcons.server;
+      case '3': return LucideIcons.cpu;
+      default:  return LucideIcons.building;
     }
   }
 
@@ -114,18 +137,159 @@ class DepartmentCard extends StatelessWidget {
 
   _StatusData _statusInfo(NoiseLevel level) {
     switch (level) {
-      case NoiseLevel.quiet:
-        return _StatusData('Live', AppColors.statusLive);
-      case NoiseLevel.normal:
-        return _StatusData('Stable', AppColors.statusStable);
-      case NoiseLevel.warning:
-        return _StatusData('Caution', AppColors.statusWarning);
-      case NoiseLevel.critical:
-        return _StatusData('Critical', AppColors.statusCritical);
+      case NoiseLevel.quiet:    return _StatusData('Live',     AppColors.statusLive);
+      case NoiseLevel.normal:   return _StatusData('Stable',   AppColors.statusStable);
+      case NoiseLevel.warning:  return _StatusData('Caution',  AppColors.statusWarning);
+      case NoiseLevel.critical: return _StatusData('Critical', AppColors.statusCritical);
     }
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  INACTIVE ZONE CARD
+// ─────────────────────────────────────────────────────────────────────────────
+class _InactiveZoneCard extends StatelessWidget {
+  const _InactiveZoneCard({required this.snapshot});
+  final ZoneSnapshot snapshot;
+
+  @override
+  Widget build(BuildContext context) {
+    final minutesAgo = DateTime.now().difference(snapshot.updatedAt).inMinutes;
+
+    return Opacity(
+      opacity: 0.55,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceElevated,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(LucideIcons.wifiOff, color: AppColors.textTertiary, size: 20),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      snapshot.zoneName,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textSecondary,
+                          ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Last seen $minutesAgo min ago',
+                      style: const TextStyle(
+                        color: AppColors.statusWarning,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const _StatusBadge(label: 'Inactive', color: AppColors.statusWarning),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.statusWarning.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: AppColors.statusWarning.withValues(alpha: 0.25),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                const Icon(LucideIcons.alertTriangle, size: 14, color: AppColors.statusWarning),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'No data received for more than 10 minutes. '
+                    'Check device connection.',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.statusWarning,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  THRESHOLD BANNER
+// ─────────────────────────────────────────────────────────────────────────────
+class _ThresholdBanner extends StatelessWidget {
+  const _ThresholdBanner({
+    required this.soundBreached,
+    required this.tempBreached,
+  });
+
+  final bool soundBreached;
+  final bool tempBreached;
+
+  @override
+  Widget build(BuildContext context) {
+    final parts = <String>[];
+    if (soundBreached) parts.add('Sound >${_kSoundMaxDb.toStringAsFixed(0)} dB');
+    if (tempBreached) {
+      parts.add('Temp outside ${_kTempMinC.toStringAsFixed(0)}–${_kTempMaxC.toStringAsFixed(0)}°C');
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: AppColors.warning.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: AppColors.warning.withValues(alpha: 0.3),
+          width: 0.5,
+        ),
+      ),
+      child: Row(
+        children: [
+          const Icon(LucideIcons.alertTriangle, size: 13, color: AppColors.warning),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              'Threshold breached: ${parts.join(" · ")}',
+              style: const TextStyle(
+                fontSize: 11,
+                color: AppColors.warning,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  SHARED INNER WIDGETS
+// ─────────────────────────────────────────────────────────────────────────────
 class _StatusData {
   final String label;
   final Color color;
@@ -146,10 +310,7 @@ class _StatusBadge extends StatelessWidget {
         Container(
           width: 8,
           height: 8,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 6),
         Text(
@@ -170,12 +331,16 @@ class _MetricRow extends StatelessWidget {
   final String label;
   final String value;
   final Color color;
+  final bool breached;
+  final String breachHint;
 
   const _MetricRow({
     required this.icon,
     required this.label,
     required this.value,
     required this.color,
+    this.breached = false,
+    this.breachHint = '',
   });
 
   @override
@@ -184,7 +349,7 @@ class _MetricRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Icon(icon, size: 16, color: AppColors.textTertiary),
+          Icon(icon, size: 16, color: breached ? AppColors.warning : AppColors.textTertiary),
           const SizedBox(width: 10),
           Text(
             label,
@@ -195,6 +360,10 @@ class _MetricRow extends StatelessWidget {
             ),
           ),
           const Spacer(),
+          if (breached) ...[
+            const Icon(LucideIcons.alertTriangle, size: 12, color: AppColors.warning),
+            const SizedBox(width: 4),
+          ],
           Text(
             value,
             style: TextStyle(
@@ -210,10 +379,7 @@ class _MetricRow extends StatelessWidget {
 }
 
 class _SoundTypeSection extends StatelessWidget {
-  const _SoundTypeSection({
-    required this.soundProfile,
-  });
-
+  const _SoundTypeSection({required this.soundProfile});
   final List<Map<String, dynamic>> soundProfile;
 
   @override
@@ -224,7 +390,7 @@ class _SoundTypeSection extends StatelessWidget {
         const SizedBox(height: 12),
         Row(
           children: [
-            Icon(LucideIcons.waves, size: 16, color: AppColors.textTertiary),
+            const Icon(LucideIcons.waves, size: 16, color: AppColors.textTertiary),
             const SizedBox(width: 10),
             const Text(
               'Live Sound Profile',

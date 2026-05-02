@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/services/supabase/supabase_telemetry_repository.dart';
+
+// Zone ID mapping (matches Supabase zones table seeds)
+const _zoneIds = {'IT Zone': 1, 'CS Zone': 2, 'Eng Zone': 3};
 
 class ActionCenter extends StatefulWidget {
   const ActionCenter({super.key});
@@ -10,10 +14,15 @@ class ActionCenter extends StatefulWidget {
 }
 
 class _ActionCenterState extends State<ActionCenter> {
-  // Buzzer states (Armed = false, Muted/Overridden = true)
-  bool _itBuzzerOverride = false;
-  bool _csBuzzerOverride = false;
+  final _repo = SupabaseTelemetryRepository();
+
+  // Mute override: when true, zone is MUTED (mode=manual, manual_state=false)
+  bool _itBuzzerOverride  = false;
+  bool _csBuzzerOverride  = false;
   bool _engBuzzerOverride = false;
+
+  // Tracks which zones have a pending "fire" in progress (button cooldown)
+  final Set<String> _triggering = {};
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +36,7 @@ class _ActionCenterState extends State<ActionCenter> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ── HEADER ──────────────────────────────────────────
           Row(
             children: [
               Container(
@@ -69,112 +79,272 @@ class _ActionCenterState extends State<ActionCenter> {
               ),
             ],
           ),
+
           const SizedBox(height: 20),
-          const Divider(
-            color: AppColors.separator,
-            height: 24,
-            thickness: 0.5,
-          ),
-          _buildOverrideSwitch(
+          const Divider(color: AppColors.separator, height: 24, thickness: 0.5),
+
+          // ── ZONE ROWS ────────────────────────────────────────
+          _buildZoneRow(
             icon: LucideIcons.monitorSpeaker,
             label: 'IT Zone',
-            value: _itBuzzerOverride,
-            onChanged: (v) => setState(() => _itBuzzerOverride = v),
+            zoneId: 1,
+            isMuted: _itBuzzerOverride,
+            onMuteChanged: (v) => _onMuteChanged('IT Zone', v),
           ),
           const SizedBox(height: 14),
-          _buildOverrideSwitch(
+          _buildZoneRow(
             icon: LucideIcons.server,
             label: 'CS Zone',
-            value: _csBuzzerOverride,
-            onChanged: (v) => setState(() => _csBuzzerOverride = v),
+            zoneId: 2,
+            isMuted: _csBuzzerOverride,
+            onMuteChanged: (v) => _onMuteChanged('CS Zone', v),
           ),
           const SizedBox(height: 14),
-          _buildOverrideSwitch(
+          _buildZoneRow(
             icon: LucideIcons.cpu,
             label: 'Eng Zone',
-            value: _engBuzzerOverride,
-            onChanged: (v) => setState(() => _engBuzzerOverride = v),
+            zoneId: 3,
+            isMuted: _engBuzzerOverride,
+            onMuteChanged: (v) => _onMuteChanged('Eng Zone', v),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildOverrideSwitch({
+  // ─────────────────────────────────────────────────────────
+  //  ZONE ROW — mute switch + manual trigger button
+  // ─────────────────────────────────────────────────────────
+  Widget _buildZoneRow({
     required IconData icon,
     required String label,
-    required bool value,
-    required ValueChanged<bool> onChanged,
+    required int zoneId,
+    required bool isMuted,
+    required ValueChanged<bool> onMuteChanged,
   }) {
-    // If value == true, it means Muted (overridden). Default is false (Armed).
-    final isMuted = value;
+    final isBusy = _triggering.contains(label);
 
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 17, color: AppColors.textSecondary),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: AppColors.textPrimary,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        SizedBox(
-          width: 78,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceElevated,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: isMuted ? AppColors.error : AppColors.success,
-                    shape: BoxShape.circle,
-                  ),
+        // Row 1: icon · label · status badge · mute switch
+        Row(
+          children: [
+            Icon(icon, size: 17, color: AppColors.textSecondary),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textPrimary,
                 ),
-                const SizedBox(width: 6),
-                Text(
-                  isMuted ? 'Muted' : 'Armed',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: isMuted ? AppColors.error : AppColors.textSecondary,
-                  ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            // Status badge
+            SizedBox(
+              width: 78,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceElevated,
+                  borderRadius: BorderRadius.circular(6),
                 ),
-              ],
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: isMuted ? AppColors.error : AppColors.success,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      isMuted ? 'Muted' : 'Armed',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: isMuted
+                            ? AppColors.error
+                            : AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
+            const SizedBox(width: 6),
+            SizedBox(
+              width: 88,
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Switch(
+                  value: isMuted,
+                  onChanged: onMuteChanged,
+                  activeThumbColor: AppColors.textPrimary,
+                  activeTrackColor: AppColors.textTertiary,
+                  inactiveThumbColor: AppColors.textSecondary,
+                  inactiveTrackColor: AppColors.statusLive,
+                  trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+                ),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 6),
+
+        // Row 2: "Override Trigger" button (disabled when muted or busy)
+        const SizedBox(height: 8),
         SizedBox(
-          width: 88,
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: Switch(
-              value: isMuted,
-              onChanged: onChanged,
-              activeThumbColor: AppColors.textPrimary,
-              activeTrackColor: AppColors.textTertiary,
-              inactiveThumbColor: AppColors.textSecondary,
-              inactiveTrackColor: AppColors.statusLive,
-              trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
-            ),
+          width: double.infinity,
+          child: _TriggerButton(
+            label: label,
+            zoneId: zoneId,
+            isMuted: isMuted,
+            isBusy: isBusy,
+            onTrigger: () => _onTriggerPressed(label, zoneId),
           ),
         ),
       ],
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────
+  //  MUTE TOGGLE — writes mode='manual', manual_state=false
+  //  (silences auto-trigger) or restores mode='auto'
+  // ─────────────────────────────────────────────────────────
+  Future<void> _onMuteChanged(String label, bool mute) async {
+    setState(() {
+      switch (label) {
+        case 'IT Zone':  _itBuzzerOverride  = mute; break;
+        case 'CS Zone':  _csBuzzerOverride  = mute; break;
+        case 'Eng Zone': _engBuzzerOverride = mute; break;
+      }
+    });
+
+    final zoneId = _zoneIds[label]!;
+    await _repo.setMuteZone(zoneId: zoneId, mute: mute);
+  }
+
+  // ─────────────────────────────────────────────────────────
+  //  OVERRIDE TRIGGER — fires buzzer for 5 s then resets
+  // ─────────────────────────────────────────────────────────
+  Future<void> _onTriggerPressed(String label, int zoneId) async {
+    if (_triggering.contains(label)) return;
+
+    setState(() => _triggering.add(label));
+    await _repo.triggerBuzzerOverride(zoneId: zoneId, durationSeconds: 5);
+
+    // Show a brief snackbar confirmation
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Buzzer triggered for $label (5 s)'),
+          duration: const Duration(seconds: 3),
+          backgroundColor: AppColors.surfaceElevated,
+        ),
+      );
+    }
+
+    // Re-enable after 6 s (slightly longer than the trigger duration)
+    await Future.delayed(const Duration(seconds: 6));
+    if (mounted) setState(() => _triggering.remove(label));
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  TRIGGER BUTTON
+// ─────────────────────────────────────────────────────────────────────────────
+class _TriggerButton extends StatelessWidget {
+  const _TriggerButton({
+    required this.label,
+    required this.zoneId,
+    required this.isMuted,
+    required this.isBusy,
+    required this.onTrigger,
+  });
+
+  final String label;
+  final int zoneId;
+  final bool isMuted;
+  final bool isBusy;
+  final VoidCallback onTrigger;
+
+  @override
+  Widget build(BuildContext context) {
+    final disabled = isMuted || isBusy;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: disabled ? null : onTrigger,
+        borderRadius: BorderRadius.circular(7),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          decoration: BoxDecoration(
+            color: disabled
+                ? AppColors.surfaceElevated.withValues(alpha: 0.4)
+                : AppColors.statusWarning.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(7),
+            border: Border.all(
+              color: disabled
+                  ? AppColors.separator
+                  : AppColors.statusWarning.withValues(alpha: 0.35),
+              width: 0.8,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (isBusy) ...[
+                SizedBox(
+                  width: 12,
+                  height: 12,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 1.5,
+                    color: AppColors.statusWarning.withValues(alpha: 0.6),
+                  ),
+                ),
+                const SizedBox(width: 7),
+                Text(
+                  'Firing...',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.statusWarning.withValues(alpha: 0.6),
+                  ),
+                ),
+              ] else ...[
+                Icon(
+                  LucideIcons.bellRing,
+                  size: 13,
+                  color: disabled
+                      ? AppColors.textTertiary
+                      : AppColors.statusWarning,
+                ),
+                const SizedBox(width: 7),
+                Text(
+                  isMuted ? 'Buzzer Muted' : 'Override Trigger',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: disabled
+                        ? AppColors.textTertiary
+                        : AppColors.statusWarning,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
