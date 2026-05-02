@@ -1,4 +1,4 @@
-import 'dart:math' show log;
+import 'dart:math' as math show log, max, min;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -134,9 +134,11 @@ class _DepartmentPageState extends State<DepartmentPage> {
         return;
       }
 
-      // Query Supabase — aggregate by hour on the server would need RPC;
-      // instead we fetch all rows in range and bucket client-side.
-      // We limit to 3600 rows (1 reading/s × 1 h) to keep it fast.
+      // Cap rows ~1 Hz sampling (with headroom); 1 Day needs far more than 7.2k rows.
+      final spanSecs = math.max(1, fetchTo.difference(fetchFrom).inSeconds);
+      final rowLimit = math.min(65535, math.max(8000, spanSecs + 4096));
+
+      // Query Supabase — bucket client-side by school hour.
       final rows = await _supabase
           .from('sensor_readings')
           .select('rms, temperature_c, created_at')
@@ -144,7 +146,7 @@ class _DepartmentPageState extends State<DepartmentPage> {
           .gte('created_at', fetchFrom.toIso8601String())
           .lte('created_at', fetchTo.toIso8601String())
           .order('created_at', ascending: true)
-          .limit(7200); // max 2 hours of 1-s readings
+          .limit(rowLimit);
 
       // ── Bucket into hour slots ───────────────────────────
       // Key = hour of day (7..16). Each bucket accumulates rms & temp.
@@ -165,7 +167,7 @@ class _DepartmentPageState extends State<DepartmentPage> {
       final points = rmsByHour.keys.map((hour) {
         final avgRms  = rmsByHour[hour]!.reduce((a, b) => a + b) / rmsByHour[hour]!.length;
         final avgTemp = tempByHour[hour]!.reduce((a, b) => a + b) / tempByHour[hour]!.length;
-        final db      = avgRms > 0 ? 20 * (log(avgRms) / log(10)) : 0.0;
+        final db      = avgRms > 0 ? 20 * (math.log(avgRms) / math.log(10)) : 0.0;
         return _HourlyPoint(hour, db, avgTemp);
       }).toList()
         ..sort((a, b) => a.hour.compareTo(b.hour));
@@ -195,7 +197,7 @@ class _DepartmentPageState extends State<DepartmentPage> {
       double latestTemp = 0;
       if (latest != null) {
         final rms = (latest['rms'] as num?)?.toDouble() ?? 0;
-        latestDb   = rms > 0 ? 20 * (log(rms) / log(10)) : 0;
+        latestDb   = rms > 0 ? 20 * (math.log(rms) / math.log(10)) : 0;
         latestTemp = (latest['temperature_c'] as num?)?.toDouble() ?? 0;
       }
 

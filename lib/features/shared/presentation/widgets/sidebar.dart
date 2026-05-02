@@ -142,6 +142,13 @@ class AppSidebar extends StatelessWidget {
                   onTap: () => onSelected(4),
                 ),
                 _NavItem(
+                  icon: LucideIcons.userCog,
+                  label: 'Account',
+                  isSelected: selectedIndex == 5,
+                  isCollapsed: isCollapsed,
+                  onTap: () => onSelected(5),
+                ),
+                _NavItem(
                   icon: LucideIcons.logOut,
                   label: 'Log out',
                   isSelected: false,

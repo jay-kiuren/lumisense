@@ -39,6 +39,8 @@ dependencies:
   lucide_icons: ^0.257.0
   supabase_flutter: ^2.12.4
   tflite_flutter: ^0.12.1
+  file_picker: ^11.0.2
+  image_picker: ^1.2.2
 
 dev_dependencies:
   flutter_test:

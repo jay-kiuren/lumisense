@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:math' show log;
+import 'dart:math' as math show log, max, min;
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -123,6 +123,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
       return [];
     }
 
+    final spanSecs = math.max(1, fetchTo.difference(fetchFrom).inSeconds);
+    final rowLimit = math.min(65535, math.max(8000, spanSecs + 4096));
+
     final rows = await _supabase
         .from('sensor_readings')
         .select('rms, temperature_c, created_at')
@@ -130,7 +133,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
         .gte('created_at', fetchFrom.toIso8601String())
         .lte('created_at', fetchTo.toIso8601String())
         .order('created_at', ascending: true)
-        .limit(7200);
+        .limit(rowLimit);
 
     final rmsByHour = <int, List<double>>{};
     final tempByHour = <int, List<double>>{};
@@ -151,7 +154,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
       final avgRms = rmsByHour[hour]!.reduce((a, b) => a + b) / rmsByHour[hour]!.length;
       final avgTemp =
           tempByHour[hour]!.reduce((a, b) => a + b) / tempByHour[hour]!.length;
-      final db = avgRms > 0 ? 20 * (log(avgRms) / log(10)) : 0.0;
+      final db = avgRms > 0 ? 20 * (math.log(avgRms) / math.log(10)) : 0.0;
       return _HourlyPoint(hour, db, avgTemp);
     }).toList()
       ..sort((a, b) => a.hour.compareTo(b.hour));
@@ -334,7 +337,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
         final avgRms = rmsVals.isEmpty
             ? 0.0
             : rmsVals.reduce((a, b) => a + b) / rmsVals.length;
-        final avgDb = avgRms > 0 ? 20 * (log(avgRms) / log(10)) : 0.0;
+        final avgDb = avgRms > 0 ? 20 * (math.log(avgRms) / math.log(10)) : 0.0;
         final level = _noiseLevelLabelFromDb(avgDb);
 
         final sorted = labelC.entries.toList()

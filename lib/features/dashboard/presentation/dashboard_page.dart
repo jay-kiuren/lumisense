@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
-import 'widgets/analytics_range_selector.dart';
 import 'widgets/department_card.dart';
 import 'widgets/floor_plan_widget.dart';
 import 'widgets/action_center.dart';
@@ -67,7 +66,6 @@ class _DashboardPageState extends State<DashboardPage> {
                     ],
                   ),
                   const Spacer(),
-                  const AnalyticsRangeSelector(),
                 ],
               ),
             ),

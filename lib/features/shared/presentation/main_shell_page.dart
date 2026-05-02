@@ -6,6 +6,7 @@ import '../../department/presentation/department_page.dart';
 import '../../statistics/presentation/statistics_page.dart';
 import '../../statistics/presentation/statistics_report_page.dart';
 import '../../settings/presentation/settings_page.dart';
+import '../../profile/presentation/profile_page.dart';
 import 'widgets/sidebar.dart';
 
 class MainShellPage extends StatefulWidget {
@@ -21,18 +22,19 @@ class _MainShellPageState extends State<MainShellPage> {
 
   @override
   Widget build(BuildContext context) {
-    const minContentWidth = 1280.0;
+    const minContentWidth  = 1280.0;
     const minContentHeight = 760.0;
-    const maxSidebarWidth = 236.0;
-    final sidebarWidth = _isCollapsed ? 80.0 : 236.0;
+    const maxSidebarWidth  = 236.0;
+    final sidebarWidth     = _isCollapsed ? 80.0 : 236.0;
 
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final canvasWidth = constraints.maxWidth < (maxSidebarWidth + minContentWidth)
-              ? (maxSidebarWidth + minContentWidth)
-              : constraints.maxWidth;
+          final canvasWidth =
+              constraints.maxWidth < (maxSidebarWidth + minContentWidth)
+                  ? (maxSidebarWidth + minContentWidth)
+                  : constraints.maxWidth;
           final canvasHeight = constraints.maxHeight < minContentHeight
               ? minContentHeight
               : constraints.maxHeight;
@@ -89,6 +91,8 @@ class _MainShellPageState extends State<MainShellPage> {
         return const StatisticsReportPage();
       case 4:
         return const SettingsPage();
+      case 5:
+        return const ProfilePage();
       default:
         return const DashboardPage();
     }

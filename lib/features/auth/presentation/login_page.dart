@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../shared/presentation/main_shell_page.dart';
 
@@ -11,27 +12,49 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _emailController = TextEditingController();
+  final _emailController    = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isLoading = false;
+  bool _isLoading    = false;
+  bool _obscurePass  = true;
+  String? _errorMsg;
 
-  void _handleLogin() async {
-    setState(() => _isLoading = true);
-    
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 1200));
-    
-    if (mounted) {
+  // ── Supabase sign-in ──────────────────────────────────────────
+  Future<void> _handleLogin() async {
+    final email    = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      setState(() => _errorMsg = 'Please enter your email and password.');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMsg  = null;
+    });
+
+    try {
+      await Supabase.instance.client.auth.signInWithPassword(
+        email:    email,
+        password: password,
+      );
+
+      if (!mounted) return;
+
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              const MainShellPage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-          transitionDuration: const Duration(milliseconds: 600),
+          pageBuilder: (_, animation, _) => const MainShellPage(),
+          transitionsBuilder: (_, animation, _, child) =>
+              FadeTransition(opacity: animation, child: child),
+          transitionDuration: const Duration(milliseconds: 500),
         ),
       );
+    } on AuthException catch (e) {
+      setState(() => _errorMsg = e.message);
+    } catch (_) {
+      setState(() => _errorMsg = 'An unexpected error occurred. Try again.');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -84,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                
+
                 // Welcome text
                 const Text(
                   'Welcome back',
@@ -104,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 40),
-                
+
                 // Email field
                 _buildSolidTextField(
                   controller: _emailController,
@@ -113,16 +136,45 @@ class _LoginPageState extends State<LoginPage> {
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Password field
-                _buildSolidTextField(
-                  controller: _passwordController,
-                  hint: 'Password',
-                  icon: LucideIcons.lock,
-                  obscureText: true,
-                ),
-                const SizedBox(height: 32),
-                
+                _buildPasswordField(),
+                const SizedBox(height: 16),
+
+                // Error message
+                if (_errorMsg != null) ...[
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.error.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: AppColors.error.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(LucideIcons.alertCircle,
+                            size: 15, color: AppColors.error),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            _errorMsg!,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.error,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
                 // Login Button
                 SizedBox(
                   width: double.infinity,
@@ -143,7 +195,8 @@ class _LoginPageState extends State<LoginPage> {
                             height: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
                         : const Text(
@@ -158,6 +211,48 @@ class _LoginPageState extends State<LoginPage> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  // ── Password field with show/hide toggle ──
+  Widget _buildPasswordField() {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surfaceElevated,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: TextField(
+        controller: _passwordController,
+        obscureText: _obscurePass,
+        onSubmitted: (_) => _handleLogin(),
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: AppColors.textPrimary,
+        ),
+        decoration: InputDecoration(
+          hintText: 'Password',
+          hintStyle: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: AppColors.textTertiary,
+          ),
+          prefixIcon: const Icon(LucideIcons.lock,
+              size: 18, color: AppColors.textSecondary),
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscurePass ? LucideIcons.eyeOff : LucideIcons.eye,
+              size: 16,
+              color: AppColors.textTertiary,
+            ),
+            onPressed: () =>
+                setState(() => _obscurePass = !_obscurePass),
+          ),
+          border: InputBorder.none,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         ),
       ),
     );
@@ -179,6 +274,7 @@ class _LoginPageState extends State<LoginPage> {
         controller: controller,
         obscureText: obscureText,
         keyboardType: keyboardType,
+        onSubmitted: (_) => _handleLogin(),
         style: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
@@ -193,7 +289,8 @@ class _LoginPageState extends State<LoginPage> {
           ),
           prefixIcon: Icon(icon, size: 18, color: AppColors.textSecondary),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         ),
       ),
     );
