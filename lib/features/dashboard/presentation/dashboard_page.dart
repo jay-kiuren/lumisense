@@ -115,6 +115,25 @@ class _DashboardPageState extends State<DashboardPage> {
   /// Ensures all 3 department zones are always visible.
   /// Live data overrides defaults; missing zones get placeholders.
   List<ZoneSnapshot> _mergeWithDefaults(List<ZoneSnapshot> live) {
+    // Default mock sound profiles per department
+    const defaultProfiles = <String, List<Map<String, dynamic>>>{
+      '1': [
+        {'label': 'keyboard_typing', 'confidence': 0.45},
+        {'label': 'conversation', 'confidence': 0.28},
+        {'label': 'fan_noise', 'confidence': 0.15},
+      ],
+      '2': [
+        {'label': 'conversation', 'confidence': 0.42},
+        {'label': 'phone_ringing', 'confidence': 0.25},
+        {'label': 'ambient', 'confidence': 0.18},
+      ],
+      '3': [
+        {'label': 'machinery', 'confidence': 0.38},
+        {'label': 'loud_talking', 'confidence': 0.26},
+        {'label': 'tools', 'confidence': 0.20},
+      ],
+    };
+
     const defaultZones = [
       ('1', 'IT Department'),
       ('2', 'CS Department'),
@@ -131,7 +150,8 @@ class _DashboardPageState extends State<DashboardPage> {
         temperatureC: 25.0,
         noiseDb: 0,
         noiseLevel: NoiseLevel.quiet,
-        soundClass: 'waiting',
+        soundClass: defaultProfiles[id]?.first['label'] as String? ?? 'waiting',
+        soundProfile: defaultProfiles[id] ?? const [],
         alertRaised: false,
         updatedAt: DateTime.now(),
       );

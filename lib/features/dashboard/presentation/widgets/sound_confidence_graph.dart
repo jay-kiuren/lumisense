@@ -27,17 +27,35 @@ class SoundConfidenceGraph extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          normalized
-              .map((e) => '${e.label} ${e.percent.toStringAsFixed(0)}%')
-              .join('  •  '),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AppColors.textSecondary,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.1,
-              ),
+        // Legend: colored dots + labels with percentages
+        Wrap(
+          spacing: 12,
+          runSpacing: 4,
+          children: normalized.map((e) {
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 7,
+                  height: 7,
+                  decoration: BoxDecoration(
+                    color: e.color,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  '${e.label} ${e.percent.toStringAsFixed(0)}%',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.1,
+                        fontSize: 11,
+                      ),
+                ),
+              ],
+            );
+          }).toList(),
         ),
         const SizedBox(height: 8),
         ClipRRect(
@@ -103,16 +121,22 @@ class _SoundItem {
   final String label;
   final double percent;
 
+  /// Distinct colors for the stacked bar segments so each sound type
+  /// is immediately distinguishable.
+  static const _palette = [
+    Color(0xFF0A84FF), // blue
+    Color(0xFF30D158), // green
+    Color(0xFFFF9F0A), // amber
+    Color(0xFFBF5AF2), // purple
+    Color(0xFFFF453A), // red
+    Color(0xFF64D2FF), // cyan
+    Color(0xFFFFD60A), // yellow
+  ];
+
   Color get color {
-    final h = label.hashCode.abs() % 3;
-    switch (h) {
-      case 0:
-        return AppColors.textPrimary.withValues(alpha: 0.92);
-      case 1:
-        return AppColors.textSecondary.withValues(alpha: 0.92);
-      default:
-        return AppColors.textTertiary.withValues(alpha: 0.92);
-    }
+    final index = label.hashCode.abs() % _palette.length;
+    return _palette[index].withValues(alpha: 0.88);
   }
 }
+
 
