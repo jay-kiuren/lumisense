@@ -32,11 +32,50 @@ class _ZoneConfig {
   });
 }
 
+// Coordinates are normalized (0..1) against the floor plan area and were
+// picked to land the sensor point on the center of each of the 3 tables
+// in assets/images/map_main.png (top table, left table, bottom table).
 const _zones = [
-  _ZoneConfig(id: 1, title: 'IT DEPARTMENT', x: 0.30, y: 0.25),
-  _ZoneConfig(id: 2, title: 'CS DEPARTMENT', x: 0.35, y: 0.75),
-  _ZoneConfig(id: 3, title: 'ENGINEERING', x: 0.75, y: 0.50),
+  _ZoneConfig(id: 1, title: 'IT DEPARTMENT', x: 0.50, y: 0.21),
+  _ZoneConfig(id: 2, title: 'CS DEPARTMENT', x: 0.19, y: 0.53),
+  _ZoneConfig(id: 3, title: 'ENGINEERING', x: 0.50, y: 0.76),
 ];
+
+// Native pixel dimensions of assets/images/map_main.png. Used so the floor
+// plan is always contain-fit (never cropped) inside its box. If the image
+// asset is ever swapped for one with different dimensions, update these two
+// numbers to match its actual pixel width/height.
+const double _mapImageWidth = 1532;
+const double _mapImageHeight = 1027;
+const double _mapAspectRatio = _mapImageWidth / _mapImageHeight;
+
+/// The largest rect of size matching [aspectRatio] that fits inside a
+/// [boxWidth] x [boxHeight] box, centered — the same math BoxFit.contain
+/// uses internally. Exposed here so sibling widgets (the pins) can be laid
+/// out in the exact same coordinate space as the image.
+class _FitRect {
+  const _FitRect(this.left, this.top, this.width, this.height);
+  final double left;
+  final double top;
+  final double width;
+  final double height;
+}
+
+_FitRect _containRect(double boxWidth, double boxHeight, double aspectRatio) {
+  final boxAspect = boxWidth / boxHeight;
+  double width;
+  double height;
+  if (boxAspect > aspectRatio) {
+    // Box is relatively wider than the image -> height is the limiting side.
+    height = boxHeight;
+    width = height * aspectRatio;
+  } else {
+    // Box is relatively taller/narrower than the image -> width is limiting.
+    width = boxWidth;
+    height = width / aspectRatio;
+  }
+  return _FitRect((boxWidth - width) / 2, (boxHeight - height) / 2, width, height);
+}
 
 class _FloorPlanWidgetState extends State<FloorPlanWidget> {
   final _rng = Random(42);
@@ -130,6 +169,7 @@ class _FloorPlanWidgetState extends State<FloorPlanWidget> {
           icon: _getIconForClass(snapshot.soundClass),
           severity: _getSeverityForLevel(snapshot.noiseLevel),
           db: snapshot.noiseDb,
+          isInactive: snapshot.isInactive,
         );
       }
     } else {
@@ -145,34 +185,80 @@ class _FloorPlanWidgetState extends State<FloorPlanWidget> {
       child: SizedBox.expand(
         child: Stack(
           children: [
-            // Generated Floor Plan Background
-            Positioned.fill(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.asset(
-                  'assets/images/floor_plan.png',
-                  fit: BoxFit.cover,
-                  color: AppColors.background.withValues(alpha: 0.1),
-                  colorBlendMode: BlendMode.darken,
-                ),
-              ),
-            ),
-            
             Positioned.fill(
               child: Padding(
                 padding: const EdgeInsets.all(18),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
+                    // Compute the largest rect that fits the image's native
+                    // aspect ratio inside the available space without
+                    // cropping (like BoxFit.contain), so the whole floor
+                    // plan is always visible no matter the window size or
+                    // future edits to the image's own dimensions.
+                    final rect = _containRect(
+                      constraints.maxWidth,
+                      constraints.maxHeight,
+                      _mapAspectRatio,
+                    );
+
                     return Stack(
-                      children: _zones.map((zone) {
-                        final event = currentEvents[zone.id];
-                        if (event == null) return const SizedBox.shrink();
-                        return Positioned(
-                          left: zone.x * constraints.maxWidth,
-                          top: zone.y * constraints.maxHeight,
-                          child: _ZoneMarker(config: zone, event: event),
-                        );
-                      }).toList(growable: false),
+                      clipBehavior: Clip.none,
+                      children: [
+                        // Floor Plan Background (room layout with the 3
+                        // sensor tables), sized to the fitted rect.
+                        Positioned(
+                          left: rect.left,
+                          top: rect.top,
+                          width: rect.width,
+                          height: rect.height,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.asset(
+                              'assets/images/map_main.png',
+                              // rect already matches the image's aspect
+                              // ratio, so `fill` here never stretches or
+                              // crops it.
+                              fit: BoxFit.fill,
+                              color: AppColors.background.withValues(alpha: 0.1),
+                              colorBlendMode: BlendMode.darken,
+                            ),
+                          ),
+                        ),
+
+                        // Sensor pins, positioned relative to the same
+                        // fitted rect so they stay locked to their tables.
+                        ..._zones.expand((zone) {
+                          final event = currentEvents[zone.id];
+                          if (event == null) return const <Widget>[];
+                          // Dot color reflects sensor connectivity/status:
+                          // black = inactive (no recent data), green = active
+                          // and stable, red = active but noisy.
+                          final dotColor = event.isInactive
+                              ? Colors.black
+                              : switch (event.severity) {
+                                  _AiSeverity.low => AppColors.success,
+                                  _AiSeverity.medium => AppColors.statusCritical,
+                                  _AiSeverity.high => AppColors.statusCritical,
+                                };
+                          final left = rect.left + zone.x * rect.width;
+                          final top = rect.top + zone.y * rect.height;
+                          return <Widget>[
+                            // Glowing GPS-style ripple pinned exactly on
+                            // the table where the physical sensor sits.
+                            Positioned(
+                              left: left,
+                              top: top,
+                              child: Transform.translate(
+                                offset: const Offset(-32, -32),
+                                child: Tooltip(
+                                  message: zone.title,
+                                  child: _RipplePulse(color: dotColor),
+                                ),
+                              ),
+                            ),
+                          ];
+                        }),
+                      ],
                     );
                   },
                 ),
@@ -215,87 +301,106 @@ class _FloorPlanWidgetState extends State<FloorPlanWidget> {
   }
 }
 
-class _ZoneMarker extends StatelessWidget {
-  const _ZoneMarker({required this.config, required this.event});
-  final _ZoneConfig config;
-  final _AiEvent event;
+/// A GPS-marker-style animated beacon: a solid glowing core with two
+/// concentric rings that continuously expand and fade outward, used to mark
+/// the physical location of a sensor on a table.
+class _RipplePulse extends StatefulWidget {
+  const _RipplePulse({required this.color});
+
+  final Color color;
+  static const double _size = 64;
+
+  @override
+  State<_RipplePulse> createState() => _RipplePulseState();
+}
+
+class _RipplePulseState extends State<_RipplePulse>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2200),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final severityColor = switch (event.severity) {
-      _AiSeverity.low => AppColors.success,
-      _AiSeverity.medium => AppColors.statusWarning,
-      _AiSeverity.high => AppColors.statusCritical,
-    };
-
-    // Clean integrated zone HUD
-    return Transform.translate(
-      offset: const Offset(-80, -35), // Centered above the coordinate
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        width: 160,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: AppColors.surfaceElevated.withValues(alpha: 0.9),
-          border: Border(
-            left: BorderSide(color: severityColor, width: 4),
-            bottom: BorderSide(color: severityColor.withValues(alpha: 0.3), width: 1),
-            top: BorderSide(color: AppColors.separator.withValues(alpha: 0.2), width: 1),
-            right: BorderSide(color: AppColors.separator.withValues(alpha: 0.2), width: 1),
-          ),
-          borderRadius: const BorderRadius.only(
-            topRight: Radius.circular(8),
-            bottomRight: Radius.circular(8),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: severityColor.withValues(alpha: 0.15),
-              blurRadius: 16,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              config.title,
-              style: TextStyle(
-                color: AppColors.textPrimary.withValues(alpha: 0.9),
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1.0,
-                fontSize: 10,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Row(
+    return IgnorePointer(
+      child: SizedBox(
+        width: _RipplePulse._size,
+        height: _RipplePulse._size,
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, _) {
+            final t1 = _controller.value;
+            final t2 = (_controller.value + 0.5) % 1.0;
+            return Stack(
+              alignment: Alignment.center,
               children: [
-                Icon(event.icon, size: 14, color: severityColor),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    event.label.toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 0.5,
-                      color: severityColor,
-                    ),
-                    overflow: TextOverflow.ellipsis,
+                _ring(t1),
+                _ring(t2),
+                // Soft outer glow behind the core dot.
+                Container(
+                  width: 26,
+                  height: 26,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: widget.color.withValues(alpha: 0.3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: widget.color.withValues(alpha: 0.75),
+                        blurRadius: 18,
+                        spreadRadius: 3,
+                      ),
+                    ],
                   ),
                 ),
-                Text(
-                  '${event.db.toStringAsFixed(1)} dB',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                // Solid core dot, like a GPS "you are here" marker.
+                Container(
+                  width: 13,
+                  height: 13,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: widget.color,
+                    border: Border.all(color: Colors.white, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.35),
+                        blurRadius: 4,
+                      ),
+                    ],
                   ),
                 ),
               ],
-            ),
-          ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _ring(double t) {
+    final maxSize = _RipplePulse._size;
+    final size = 14.0 + t * (maxSize - 14.0);
+    final opacity = (1 - t).clamp(0.0, 1.0);
+    return Opacity(
+      opacity: opacity * 0.7,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: widget.color, width: 2.5),
         ),
       ),
     );
@@ -312,6 +417,7 @@ class _AiEvent {
     required this.icon,
     required this.severity,
     required this.db,
+    this.isInactive = false,
   });
 
   // Normalized 0..1 coordinates within the map area.
@@ -321,6 +427,7 @@ class _AiEvent {
   final IconData icon;
   final _AiSeverity severity;
   final double db;
+  final bool isInactive;
 
   static _AiEvent random(Random rng) {
     final choices = <(String, IconData, _AiSeverity, double)>[

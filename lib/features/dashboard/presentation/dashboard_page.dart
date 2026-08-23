@@ -81,13 +81,21 @@ class _DashboardPageState extends State<DashboardPage> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Expanded(
-                        flex: 6,
-                        child: FloorPlanWidget(liveZones: liveZones),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        flex: 3,
-                        child: _LiveZonesPanel(zones: displayZones),
+                        flex: 7,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              flex: 3,
+                              child: FloorPlanWidget(liveZones: liveZones),
+                            ),
+                            const SizedBox(height: 16),
+                            Expanded(
+                              flex: 2,
+                              child: _LiveZonesPanel(zones: displayZones),
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(width: 16),
                       const Expanded(
@@ -211,14 +219,33 @@ class _LiveZonesPanel extends StatelessWidget {
   }
 
   Widget _buildZones(BuildContext context) {
-    return ListView.separated(
-      padding: EdgeInsets.zero,
-      itemCount: zones.length,
-      separatorBuilder: (context, index) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        child: Divider(color: AppColors.surfaceHighlight.withValues(alpha: 0.8), height: 1),
-      ),
-      itemBuilder: (context, index) => DepartmentCard(snapshot: zones[index]),
+    // Now that this panel sits in a wide strip below the map instead of a
+    // tall side column, lay the department cards out side by side. Each
+    // card scrolls independently in case its content is taller than the
+    // strip, so nothing gets clipped or causes an overflow.
+    final children = <Widget>[];
+    for (var i = 0; i < zones.length; i++) {
+      if (i > 0) {
+        children.add(
+          VerticalDivider(
+            color: AppColors.surfaceHighlight.withValues(alpha: 0.8),
+            width: 32,
+            thickness: 1,
+          ),
+        );
+      }
+      children.add(
+        Expanded(
+          child: SingleChildScrollView(
+            child: DepartmentCard(snapshot: zones[i]),
+          ),
+        ),
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: children,
     );
   }
 }
