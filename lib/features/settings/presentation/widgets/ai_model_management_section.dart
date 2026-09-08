@@ -5,6 +5,19 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/services/remote_model_loader.dart';
 import '../../../../core/theme/app_colors.dart';
 
+/// Settings > AI Model Management.
+///
+/// Lets an admin upload a replacement .tflite model (plus its matching
+/// labels + scaler files) for either the sound-type classifier or the
+/// noise-source classifier. The upload goes to Supabase Storage; every
+/// device picks up the new model automatically on next app start — no
+/// rebuild needed. See lib/core/services/remote_model_loader.dart.
+///
+/// NOTE: gated on the same UserRole placeholder used elsewhere in the app
+/// (see statistics_report_page.dart). That enum isn't yet wired to a real
+/// authenticated session/role lookup — until it is, this section is
+/// visible to anyone who reaches Settings. Flagging this so it isn't
+/// mistaken for enforced access control.
 class AiModelManagementSection extends StatefulWidget {
   const AiModelManagementSection({super.key});
 
@@ -83,21 +96,21 @@ class _AiModelManagementSectionState extends State<AiModelManagementSection> {
   Future<void> _pickAndUpload(String modelType) async {
     final messenger = ScaffoldMessenger.of(context);
 
-    final tfliteResult = await FilePicker.platform.pickFiles(
+    final tfliteResult = await FilePicker.pickFiles(
       dialogTitle: 'Select the .tflite model file',
       type: FileType.custom,
       allowedExtensions: ['tflite'],
     );
     if (tfliteResult == null || tfliteResult.files.single.path == null) return;
 
-    final labelsResult = await FilePicker.platform.pickFiles(
+    final labelsResult = await FilePicker.pickFiles(
       dialogTitle: 'Select the labels .txt file',
       type: FileType.custom,
       allowedExtensions: ['txt'],
     );
     if (labelsResult == null || labelsResult.files.single.path == null) return;
 
-    final scalerResult = await FilePicker.platform.pickFiles(
+    final scalerResult = await FilePicker.pickFiles(
       dialogTitle: 'Select the scaler params .txt file',
       type: FileType.custom,
       allowedExtensions: ['txt'],
