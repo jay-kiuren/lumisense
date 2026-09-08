@@ -5,6 +5,7 @@ import '../../domain/entities/zone_snapshot.dart';
 import '../../domain/repositories/telemetry_repository.dart';
 import '../../domain/value_objects/noise_level.dart';
 import '../ml_inference_service.dart';
+import '../source_inference_service.dart';
 import '../settings_service.dart';
 
 // ─────────────────────────────────────────────────────────────
@@ -19,6 +20,7 @@ const Duration _kInactiveDuration = Duration(minutes: 10);
 class SupabaseTelemetryRepository implements TelemetryRepository {
   final SupabaseClient _client = Supabase.instance.client;
   final MLInferenceService _mlService = MLInferenceService();
+  final SourceInferenceService _sourceMlService = SourceInferenceService();
 
   // Tracks which zones have already been logged as INACTIVE this cycle
   // so we don't spam the audit_logs on every stream event.
@@ -26,6 +28,7 @@ class SupabaseTelemetryRepository implements TelemetryRepository {
 
   Future<void> initialize() async {
     await _mlService.initialize();
+    await _sourceMlService.initialize();
   }
 
   @override
@@ -43,6 +46,11 @@ class SupabaseTelemetryRepository implements TelemetryRepository {
         }
 
         final List<ZoneSnapshot> snapshots = [];
+        // Collected alongside snapshots so we can run the fused 3-sensor
+        // SOURCE model once per cycle, using the exact feature order it
+        // was trained on (see ai_training/train_source_classifier.py).
+        // zoneId 1=IT, 2=CS, 3=Engineering (see _getZoneName below).
+        final Map<String, Map<String, double>> zoneReadingsByCode = {};
 
         for (final row in latestPerZone.values) {
           final zoneId = row['zone_id'] as int;
@@ -82,6 +90,15 @@ class SupabaseTelemetryRepository implements TelemetryRepository {
 
           // Zone came back online — clear the logged flag
           _inactiveLogged.remove(zoneId);
+
+          // Record this zone's raw reading for the fused SOURCE model —
+          // needs all 3 zones' current values at once (see below).
+          final String? zoneCode = _zoneCode(zoneId);
+          if (zoneCode != null) {
+            zoneReadingsByCode[zoneCode] = {
+              'avg': avg, 'peak': peak, 'min': min, 'rms': rms,
+            };
+          }
 
           // ── dB CONVERSION ───────────────────────────────────
           final double rawNoiseDb = rms > 0 ? 20 * _log10(rms / 1.0) : 0;
@@ -145,6 +162,24 @@ class SupabaseTelemetryRepository implements TelemetryRepository {
             updatedAt: updatedAt,
             isInactive: false,
           ));
+        }
+
+        // ── FUSED SOURCE CLASSIFICATION ────────────────────────
+        // Only meaningful once we have a fresh, simultaneous reading
+        // from all 3 zones this cycle — a partial set (e.g. one zone
+        // inactive) can't be compared fairly against the others.
+        if (zoneReadingsByCode.length == 3) {
+          final sourceResult = _sourceMlService.classifySource(
+            cs: zoneReadingsByCode['cs']!,
+            eng: zoneReadingsByCode['eng']!,
+            it: zoneReadingsByCode['it']!,
+          );
+          _recordSourcePrediction(
+            sourceResult: sourceResult,
+            csRms: zoneReadingsByCode['cs']!['rms']!,
+            engRms: zoneReadingsByCode['eng']!['rms']!,
+            itRms: zoneReadingsByCode['it']!['rms']!,
+          );
         }
 
         return snapshots;
@@ -373,6 +408,40 @@ class SupabaseTelemetryRepository implements TelemetryRepository {
       case 2: return 'CS';
       case 3: return 'Engineering';
       default: return 'Zone $zoneId';
+    }
+  }
+
+  /// Maps zoneId -> the short code the SOURCE model's feature order was
+  /// trained on (cs_*, eng_*, it_* — see ai_training/train_source_classifier.py).
+  /// zoneId 1=IT, 2=CS, 3=Engineering (matches _getZoneName above).
+  String? _zoneCode(int zoneId) {
+    switch (zoneId) {
+      case 1: return 'it';
+      case 2: return 'cs';
+      case 3: return 'eng';
+      default: return null;
+    }
+  }
+
+  /// Persists the fused SOURCE model's latest prediction. Best-effort —
+  /// a failure here should never interrupt the live-zones stream.
+  Future<void> _recordSourcePrediction({
+    required Map<String, dynamic> sourceResult,
+    required double csRms,
+    required double engRms,
+    required double itRms,
+  }) async {
+    try {
+      await _client.from('noise_source_predictions').insert({
+        'noise_detected': sourceResult['noiseDetected'],
+        'likely_source': sourceResult['likelySource'],
+        'confidence': sourceResult['confidence'],
+        'cs_rms': csRms,
+        'eng_rms': engRms,
+        'it_rms': itRms,
+      });
+    } catch (e) {
+      // Non-fatal — table may not be migrated yet, or we're offline.
     }
   }
 
