@@ -4,6 +4,7 @@ import 'widgets/department_card.dart';
 import 'widgets/floor_plan_widget.dart';
 import 'widgets/action_center.dart';
 import 'widgets/summary_panel.dart';
+import 'widgets/ai_source_detection_card.dart';
 import '../../../core/domain/entities/zone_snapshot.dart';
 import '../../../core/domain/value_objects/noise_level.dart';
 
@@ -104,6 +105,8 @@ class _DashboardPageState extends State<DashboardPage> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             ActionCenter(),
+                            SizedBox(height: 16),
+                            AiSourceDetectionCard(),
                             SizedBox(height: 16),
                             Expanded(child: SummaryPanel()),
                           ],
