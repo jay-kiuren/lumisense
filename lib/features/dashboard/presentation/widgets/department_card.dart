@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/domain/entities/zone_snapshot.dart';
 import '../../../../core/domain/value_objects/noise_level.dart';
 import '../../../../core/services/settings_service.dart';
