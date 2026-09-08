@@ -1,11 +1,18 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
+import 'remote_model_loader.dart';
 
 /// Service that runs the trained ANN model to classify sounds.
 ///
 /// Input:  4 numbers from the INMP441 sensor (Avg, Peak, Min, RMS)
-/// Output: Sound class label (ambient, conversation, furniture_dragging, phone_ringing)
+/// Output: Sound class label (quiet, normal_activity, disruptive)
+///
+/// Tries an admin-uploaded replacement model first (see
+/// [RemoteModelLoader] — lets the model be swapped without an app
+/// rebuild), and falls back to the model bundled in assets/models/
+/// if nothing has been uploaded or the download fails.
 class MLInferenceService {
   Interpreter? _interpreter;
   List<String> _labels = [];
@@ -14,9 +21,27 @@ class MLInferenceService {
   List<double> _scalerMean = [];
   List<double> _scalerScale = [];
 
+  static const String _modelType = 'sound_type';
+
   Future<void> initialize() async {
     try {
-      // Load the TFLite model
+      final remote = await RemoteModelLoader.fetch(_modelType);
+      if (remote != null) {
+        _interpreter = Interpreter.fromFile(File(remote['tflite']!));
+        _labels = (await File(remote['labels']!).readAsString())
+            .split('\n')
+            .where((l) => l.isNotEmpty)
+            .toList();
+        _loadScaler(await File(remote['scaler']!).readAsString());
+        debugPrint('✓ ML model loaded from admin upload. Labels: $_labels');
+        return;
+      }
+    } catch (e) {
+      debugPrint('⚠ Remote ML model failed, falling back to bundled: $e');
+    }
+
+    try {
+      // Load the bundled TFLite model
       _interpreter = await Interpreter.fromAsset('models/sound_classifier.tflite');
 
       // Load the class labels
@@ -25,17 +50,21 @@ class MLInferenceService {
 
       // Load the scaler parameters
       final scalerData = await rootBundle.loadString('assets/models/scaler_params.txt');
-      for (final line in scalerData.split('\n')) {
-        if (line.startsWith('mean:')) {
-          _scalerMean = line.replaceFirst('mean:', '').split(',').map(double.parse).toList();
-        } else if (line.startsWith('scale:')) {
-          _scalerScale = line.replaceFirst('scale:', '').split(',').map(double.parse).toList();
-        }
-      }
+      _loadScaler(scalerData);
 
-      debugPrint('✓ ML model loaded. Labels: $_labels');
+      debugPrint('✓ ML model loaded (bundled). Labels: $_labels');
     } catch (e) {
       debugPrint('⚠ ML model not ready yet: $e');
+    }
+  }
+
+  void _loadScaler(String scalerData) {
+    for (final line in scalerData.split('\n')) {
+      if (line.startsWith('mean:')) {
+        _scalerMean = line.replaceFirst('mean:', '').split(',').map(double.parse).toList();
+      } else if (line.startsWith('scale:')) {
+        _scalerScale = line.replaceFirst('scale:', '').split(',').map(double.parse).toList();
+      }
     }
   }
 
