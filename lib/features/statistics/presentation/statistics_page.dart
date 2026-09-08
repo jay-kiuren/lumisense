@@ -3,7 +3,7 @@ import 'dart:math' as math show log, max, min;
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/theme/app_colors.dart';
