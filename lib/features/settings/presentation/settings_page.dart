@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/models/app_settings.dart';
 import '../../../core/services/settings_service.dart';
 import '../../../core/theme/app_colors.dart';
+import 'widgets/ai_model_management_section.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -199,6 +200,13 @@ class _SettingsPageState extends State<SettingsPage> {
                   const _SectionHeader(title: 'Alarm Configuration'),
                   const SizedBox(height: 16),
                   _buildAlarmPatternSection(),
+
+                  const SizedBox(height: 32),
+
+                  // ── AI MODEL MANAGEMENT ──
+                  const _SectionHeader(title: 'AI Models'),
+                  const SizedBox(height: 16),
+                  const AiModelManagementSection(),
 
                   const SizedBox(height: 32),
 
