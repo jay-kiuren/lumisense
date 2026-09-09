@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/config/zone_names.dart';
 
 import '../../../../core/domain/entities/zone_snapshot.dart';
 import '../../../../core/domain/value_objects/noise_level.dart';
@@ -36,9 +37,9 @@ class _ZoneConfig {
 // picked to land the sensor point on the center of each of the 3 tables
 // in assets/images/map_main.png (top table, left table, bottom table).
 const _zones = [
-  _ZoneConfig(id: 1, title: 'IT DEPARTMENT', x: 0.50, y: 0.21),
-  _ZoneConfig(id: 2, title: 'CS DEPARTMENT', x: 0.19, y: 0.53),
-  _ZoneConfig(id: 3, title: 'ENGINEERING', x: 0.50, y: 0.76),
+  _ZoneConfig(id: 1, title: ZoneNames.zone1, x: 0.50, y: 0.21),
+  _ZoneConfig(id: 2, title: ZoneNames.zone2, x: 0.19, y: 0.53),
+  _ZoneConfig(id: 3, title: ZoneNames.zone3, x: 0.50, y: 0.76),
 ];
 
 // Native pixel dimensions of assets/images/map_main.png. Used so the floor
