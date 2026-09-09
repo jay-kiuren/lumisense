@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../auth/presentation/login_page.dart';
 import '../../../core/theme/app_colors.dart';
 
@@ -76,27 +75,14 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Sleek Apple-style Logo
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: AppColors.textPrimary,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.textPrimary.withValues(alpha: 0.15),
-                            blurRadius: 40,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          LucideIcons.hexagon,
-                          size: 40,
-                          color: AppColors.background,
-                        ),
+                    // Logo
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.asset(
+                        'assets/branding/logo_snhs.png',
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.contain,
                       ),
                     ),
                     const SizedBox(height: 32),
