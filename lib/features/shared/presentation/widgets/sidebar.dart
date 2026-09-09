@@ -187,7 +187,7 @@ class AppSidebar extends StatelessWidget {
           ],
         ),
         content: const Text(
-          'Are you sure you want to log out of LumiSense?',
+          'Are you sure you want to log out of Sagana SmartSense?',
           style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 14,
@@ -267,7 +267,7 @@ class AppSidebar extends StatelessWidget {
               duration: const Duration(milliseconds: 150),
               opacity: isCollapsed ? 0 : 1,
               child: const Text(
-                'Lumisense',
+                'Sagana SmartSense',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
