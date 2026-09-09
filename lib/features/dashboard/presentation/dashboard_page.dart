@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/config/zone_names.dart';
 import 'widgets/department_card.dart';
 import 'widgets/floor_plan_widget.dart';
 import 'widgets/action_center.dart';
@@ -146,9 +147,9 @@ class _DashboardPageState extends State<DashboardPage> {
     };
 
     const defaultZones = [
-      ('1', 'IT Department'),
-      ('2', 'CS Department'),
-      ('3', 'Engineering Department'),
+      ('1', ZoneNames.zone1),
+      ('2', ZoneNames.zone2),
+      ('3', ZoneNames.zone3),
     ];
 
     final Map<String, ZoneSnapshot> merged = {};
