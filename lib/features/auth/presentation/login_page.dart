@@ -84,26 +84,13 @@ class _LoginPageState extends State<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Logo
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: AppColors.textPrimary,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.textPrimary.withValues(alpha: 0.15),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      LucideIcons.hexagon,
-                      size: 28,
-                      color: AppColors.background,
-                    ),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.asset(
+                    'assets/branding/logo_snhs.png',
+                    width: 56,
+                    height: 56,
+                    fit: BoxFit.contain,
                   ),
                 ),
                 const SizedBox(height: 32),
