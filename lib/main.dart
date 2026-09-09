@@ -20,11 +20,34 @@ void main() async {
     // Load settings from Supabase so thresholds are available app-wide
     // before the first sensor reading arrives.
     await SettingsService.instance.load();
+
+    // Run the daily retention cleanup if it's due (summarizes yesterday's
+    // sensor_readings into daily_logs, then deletes raw readings older
+    // than 24h). This is what keeps sensor_readings from growing
+    // unbounded and eating into the Supabase storage quota. Defined in
+    // lumisense_retention_rpc.sql — cheap no-op check on days it's
+    // already run, so safe to call on every launch.
+    await _runRetentionCleanupIfDue();
   } catch (e) {
     debugPrint('Supabase not fully configured yet: $e');
   }
 
   runApp(const SmartLibraryApp());
+}
+
+Future<void> _runRetentionCleanupIfDue() async {
+  try {
+    final needed = await Supabase.instance.client.rpc('check_cleanup_needed');
+    if (needed == true) {
+      final result = await Supabase.instance.client.rpc('run_daily_cleanup');
+      debugPrint('✓ Retention cleanup ran: $result');
+    } else {
+      debugPrint('· Retention cleanup not due yet today.');
+    }
+  } catch (e) {
+    // Never let a cleanup failure block app startup.
+    debugPrint('⚠ Retention cleanup check failed: $e');
+  }
 }
 
 class SmartLibraryApp extends StatelessWidget {
