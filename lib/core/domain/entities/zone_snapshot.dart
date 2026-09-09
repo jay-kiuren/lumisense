@@ -12,6 +12,8 @@ class ZoneSnapshot {
     required this.alertRaised,
     required this.updatedAt,
     this.isInactive = false,
+    this.bestGuessLabel,
+    this.bestGuessConfidence = 0.0,
   });
 
   final String zoneId;
@@ -28,6 +30,15 @@ class ZoneSnapshot {
   /// Set by SupabaseTelemetryRepository after the staleness check.
   final bool isInactive;
 
+  /// Secondary "best guess" from the fine-grained sound-type model (e.g.
+  /// "clapping", "furniture_dragging"). Null when the fine-grained model
+  /// hasn't loaded, or when there's no reading yet. This is a low-
+  /// confidence hint (~34% test accuracy) — always display it as such,
+  /// never as a confirmed classification. [soundClass] (the 3-tier
+  /// quiet/normal_activity/disruptive label) is the reliable signal.
+  final String? bestGuessLabel;
+  final double bestGuessConfidence;
+
   /// Convenience: how long since the last reading
   Duration get staleDuration => DateTime.now().difference(updatedAt);
 
@@ -42,6 +53,8 @@ class ZoneSnapshot {
     bool? alertRaised,
     DateTime? updatedAt,
     bool? isInactive,
+    String? bestGuessLabel,
+    double? bestGuessConfidence,
   }) {
     return ZoneSnapshot(
       zoneId: zoneId ?? this.zoneId,
@@ -54,6 +67,8 @@ class ZoneSnapshot {
       alertRaised: alertRaised ?? this.alertRaised,
       updatedAt: updatedAt ?? this.updatedAt,
       isInactive: isInactive ?? this.isInactive,
+      bestGuessLabel: bestGuessLabel ?? this.bestGuessLabel,
+      bestGuessConfidence: bestGuessConfidence ?? this.bestGuessConfidence,
     );
   }
 }
