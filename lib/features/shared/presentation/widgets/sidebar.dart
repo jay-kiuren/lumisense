@@ -187,7 +187,7 @@ class AppSidebar extends StatelessWidget {
           ],
         ),
         content: const Text(
-          'Are you sure you want to log out of Sagana SmartSense?',
+          'Are you sure you want to log out of LumiSense?',
           style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 14,
@@ -245,21 +245,14 @@ class AppSidebar extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(_iconLeftInset, 40, _iconLeftInset, 0),
       child: Row(
         children: [
-          Container(
-            width: _iconSlotSize,
-            height: _iconSlotSize,
-            decoration: BoxDecoration(
-              color: AppColors.textPrimary, // White background
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.textPrimary.withValues(alpha: 0.1),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.asset(
+              'assets/branding/logo_snhs.png',
+              width: _iconSlotSize,
+              height: _iconSlotSize,
+              fit: BoxFit.contain,
             ),
-            child: const Icon(LucideIcons.hexagon, color: AppColors.sidebar, size: 20), // Dark icon
           ),
           const SizedBox(width: 12),
           Expanded(
