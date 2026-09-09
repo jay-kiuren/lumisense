@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/config/zone_names.dart';
 import '../../dashboard/presentation/widgets/summary_panel.dart';
 
 // ─────────────────────────────────────────────────────────────
@@ -60,11 +61,11 @@ class _DepartmentPageState extends State<DepartmentPage> {
   int _selectedTab = 0;
   _Range _selectedRange = _Range.oneHour;
 
-  // zone_id values that match Supabase seeds: 1=IT, 2=CS, 3=Eng
+  // zone_id values that match Supabase seeds: 1=STEM/HUMSS, 2=HIGHSCHOOL, 3=GAS/TVL
   static const _departments = [
-    _DeptInfo('IT Department',          1, LucideIcons.monitorSpeaker),
-    _DeptInfo('CS Department',          2, LucideIcons.server),
-    _DeptInfo('Engineering Department', 3, LucideIcons.cpu),
+    _DeptInfo(ZoneNames.zone1, 1, LucideIcons.monitorSpeaker),
+    _DeptInfo(ZoneNames.zone2, 2, LucideIcons.server),
+    _DeptInfo(ZoneNames.zone3, 3, LucideIcons.cpu),
   ];
 
   // ── live chart data ──────────────────────────────────────
