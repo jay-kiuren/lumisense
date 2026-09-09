@@ -102,7 +102,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                     const SizedBox(height: 32),
                     // Brand Name
                     const Text(
-                      'Lumisense',
+                      'Sagana SmartSense',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.w700,
