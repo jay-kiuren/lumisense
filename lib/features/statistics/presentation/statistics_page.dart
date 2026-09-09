@@ -7,6 +7,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/config/zone_names.dart';
 
 // ── School hours (match department_page) ────────────────────
 const int _kSchoolStartHour = 7;
@@ -54,9 +55,9 @@ class _DeptLineStyle {
 }
 
 const _kDeptOrder = [
-  _DeptLineStyle('CS Department', 2, LucideIcons.server, AppColors.primary),
-  _DeptLineStyle('IT Department', 1, LucideIcons.monitorSpeaker, Color(0xFF10B981)),
-  _DeptLineStyle('Engineering Department', 3, LucideIcons.cpu, Color(0xFFF59E0B)),
+  _DeptLineStyle(ZoneNames.zone2, 2, LucideIcons.server, AppColors.primary),
+  _DeptLineStyle(ZoneNames.zone1, 1, LucideIcons.monitorSpeaker, Color(0xFF10B981)),
+  _DeptLineStyle(ZoneNames.zone3, 3, LucideIcons.cpu, Color(0xFFF59E0B)),
 ];
 
 class StatisticsPage extends StatefulWidget {
