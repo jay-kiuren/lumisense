@@ -1,0 +1,11 @@
+clapping
+furniture_dragging
+laughing
+media_phone
+media_speaker
+object_drop
+phone_alarm
+quiet
+shouting
+talking
+talking_2m
