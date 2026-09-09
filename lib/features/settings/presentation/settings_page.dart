@@ -223,7 +223,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       children: [
                         const _SettingsTile(
                           icon: LucideIcons.database,
-                          title: 'Firebase Realtime Database',
+                          title: 'Supabase Realtime Database',
                           subtitle:
                               'Primary telemetry storage and synchronization',
                           statusText: 'Connected',
@@ -240,8 +240,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         Divider(color: AppColors.borderSubtle, height: 1),
                         const _SettingsTile(
                           icon: LucideIcons.cpu,
-                          title: 'Edge Impulse ML Model',
-                          subtitle: 'Sound classification inference engine',
+                          title: 'On-Device TFLite Models',
+                          subtitle: 'Sound type & noise source classification',
                           statusText: 'Active',
                           isPositive: true,
                         ),
