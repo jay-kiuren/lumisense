@@ -34,7 +34,7 @@ class SmartLibraryApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'LumiSense Monitor',
+      title: 'Sagana SmartSense',
       theme: AppTheme.dark(),
       home: const SplashPage(),
     );
