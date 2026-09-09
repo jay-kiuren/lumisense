@@ -3,9 +3,10 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/services/settings_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/services/supabase/supabase_telemetry_repository.dart';
+import '../../../../core/config/zone_names.dart';
 
 // Zone ID mapping (matches Supabase zones table seeds)
-const _zoneIds = {'IT Zone': 1, 'CS Zone': 2, 'Eng Zone': 3};
+const _zoneIds = {ZoneNames.zone1: 1, ZoneNames.zone2: 2, ZoneNames.zone3: 3};
 
 class ActionCenter extends StatefulWidget {
   const ActionCenter({super.key});
@@ -87,26 +88,26 @@ class _ActionCenterState extends State<ActionCenter> {
           // ── ZONE ROWS ────────────────────────────────────────
           _buildZoneRow(
             icon: LucideIcons.monitorSpeaker,
-            label: 'IT Zone',
+            label: ZoneNames.zone1,
             zoneId: 1,
             isMuted: _itBuzzerOverride,
-            onMuteChanged: (v) => _onMuteChanged('IT Zone', v),
+            onMuteChanged: (v) => _onMuteChanged(ZoneNames.zone1, v),
           ),
           const SizedBox(height: 14),
           _buildZoneRow(
             icon: LucideIcons.server,
-            label: 'CS Zone',
+            label: ZoneNames.zone2,
             zoneId: 2,
             isMuted: _csBuzzerOverride,
-            onMuteChanged: (v) => _onMuteChanged('CS Zone', v),
+            onMuteChanged: (v) => _onMuteChanged(ZoneNames.zone2, v),
           ),
           const SizedBox(height: 14),
           _buildZoneRow(
             icon: LucideIcons.cpu,
-            label: 'Eng Zone',
+            label: ZoneNames.zone3,
             zoneId: 3,
             isMuted: _engBuzzerOverride,
-            onMuteChanged: (v) => _onMuteChanged('Eng Zone', v),
+            onMuteChanged: (v) => _onMuteChanged(ZoneNames.zone3, v),
           ),
         ],
       ),
@@ -223,9 +224,9 @@ class _ActionCenterState extends State<ActionCenter> {
   Future<void> _onMuteChanged(String label, bool mute) async {
     setState(() {
       switch (label) {
-        case 'IT Zone':  _itBuzzerOverride  = mute; break;
-        case 'CS Zone':  _csBuzzerOverride  = mute; break;
-        case 'Eng Zone': _engBuzzerOverride = mute; break;
+        case ZoneNames.zone1: _itBuzzerOverride  = mute; break;
+        case ZoneNames.zone2: _csBuzzerOverride  = mute; break;
+        case ZoneNames.zone3: _engBuzzerOverride = mute; break;
       }
     });
 
