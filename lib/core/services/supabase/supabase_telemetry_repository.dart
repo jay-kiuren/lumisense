@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:math' show log;
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../config/zone_names.dart';
 import '../../domain/entities/zone_snapshot.dart';
+import '../../config/zone_names.dart';
 import '../../domain/repositories/telemetry_repository.dart';
 import '../../domain/value_objects/noise_level.dart';
 import '../ml_inference_service.dart';
@@ -111,7 +111,7 @@ class SupabaseTelemetryRepository implements TelemetryRepository {
           final bool tempTooCold    = temperatureC < _kTempMinC;
           final bool tempBreached   = tempTooHot || tempTooCold;
 
-          // ANN classification — primary (reliable) 3-tier model
+          // ANN classification
           final result = _mlService.classifySound(
             avg: avg,
             peak: peak,
@@ -124,17 +124,6 @@ class SupabaseTelemetryRepository implements TelemetryRepository {
                   ?.map((e) => (e as Map).cast<String, dynamic>())
                   .toList() ??
               const <Map<String, dynamic>>[];
-
-          // Secondary "best guess" — fine-grained model (~34% accuracy,
-          // shown as a low-confidence hint, never as the primary signal)
-          final fineResult = _mlService.classifySoundFineGrained(
-            avg: avg,
-            peak: peak,
-            min: min,
-            rms: rms,
-          );
-          final String? bestGuessLabel = fineResult['label'] as String?;
-          final double bestGuessConfidence = (fineResult['confidence'] as double?) ?? 0.0;
 
           // Compute noise level — if either threshold is breached, escalate
           NoiseLevel level = _resolveNoiseLevel(rawNoiseDb);
@@ -173,8 +162,6 @@ class SupabaseTelemetryRepository implements TelemetryRepository {
             alertRaised: alertRaised,
             updatedAt: updatedAt,
             isInactive: false,
-            bestGuessLabel: bestGuessLabel,
-            bestGuessConfidence: bestGuessConfidence,
           ));
         }
 
@@ -407,9 +394,6 @@ class SupabaseTelemetryRepository implements TelemetryRepository {
     return NoiseLevel.quiet;
   }
 
-  /// Display name shown throughout the app (Live Zones cards, alerts,
-  /// etc.). Routed through ZoneNames — the single source of truth — so
-  /// a department rename only ever needs to happen in one file.
   String _getZoneName(int zoneId) => ZoneNames.forZoneId(zoneId);
 
   String _getDepartmentShort(int zoneId) => ZoneNames.forZoneId(zoneId);

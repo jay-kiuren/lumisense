@@ -7,6 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/export/csv_export.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/config/zone_names.dart';
 
 String _formatLogTimestamp(DateTime dt) {
   final m = dt.month.toString().padLeft(2, '0');
@@ -182,7 +183,7 @@ class _StatisticsReportPageState extends State<StatisticsReportPage> {
         timestamp: DateTime.now().subtract(
           Duration(minutes: i * 37, seconds: i * 13),
         ),
-        departmentShort: ['IT', 'CS', 'Engineering'][i % 3],
+        departmentShort: [ZoneNames.zone1, ZoneNames.zone2, ZoneNames.zone3][i % 3],
         event: [
           'Noise level exceeded 72 dB (Critical)',
           'Temperature spike: 29.1°C',
@@ -203,18 +204,7 @@ class _StatisticsReportPageState extends State<StatisticsReportPage> {
     );
   }
 
-  static String _zoneToDeptShort(int zoneId) {
-    switch (zoneId) {
-      case 1:
-        return 'IT';
-      case 2:
-        return 'CS';
-      case 3:
-        return 'Engineering';
-      default:
-        return 'Zone $zoneId';
-    }
-  }
+  static String _zoneToDeptShort(int zoneId) => ZoneNames.forZoneId(zoneId);
 
   static _Severity _severityFromRow(String noiseLevel, String? severityCol) {
     final s = severityCol?.toLowerCase();
@@ -539,11 +529,11 @@ class _StatisticsReportPageState extends State<StatisticsReportPage> {
             value: _deptFilter,
             underline: const SizedBox(),
             dropdownColor: AppColors.surfaceElevated,
-            items: const [
-              DropdownMenuItem(value: null, child: Text('All')),
-              DropdownMenuItem(value: 'CS', child: Text('CS')),
-              DropdownMenuItem(value: 'IT', child: Text('IT')),
-              DropdownMenuItem(value: 'Engineering', child: Text('Engineering')),
+            items: [
+              const DropdownMenuItem(value: null, child: Text('All')),
+              const DropdownMenuItem(value: ZoneNames.zone2, child: Text(ZoneNames.zone2)),
+              const DropdownMenuItem(value: ZoneNames.zone1, child: Text(ZoneNames.zone1)),
+              const DropdownMenuItem(value: ZoneNames.zone3, child: Text(ZoneNames.zone3)),
             ],
             onChanged: (v) => setState(() => _deptFilter = v),
           ),

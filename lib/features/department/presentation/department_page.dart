@@ -61,11 +61,11 @@ class _DepartmentPageState extends State<DepartmentPage> {
   int _selectedTab = 0;
   _Range _selectedRange = _Range.oneHour;
 
-  // zone_id values that match Supabase seeds: 1=STEM/HUMSS, 2=HIGHSCHOOL, 3=GAS/TVL
+  // zone_id values that match Supabase seeds: 1=IT, 2=CS, 3=Eng
   static const _departments = [
-    _DeptInfo(ZoneNames.zone1, 1, LucideIcons.monitorSpeaker),
-    _DeptInfo(ZoneNames.zone2, 2, LucideIcons.server),
-    _DeptInfo(ZoneNames.zone3, 3, LucideIcons.cpu),
+    _DeptInfo(ZoneNames.zone1,          1, LucideIcons.monitorSpeaker),
+    _DeptInfo(ZoneNames.zone2,          2, LucideIcons.server),
+    _DeptInfo(ZoneNames.zone3,          3, LucideIcons.cpu),
   ];
 
   // ── live chart data ──────────────────────────────────────

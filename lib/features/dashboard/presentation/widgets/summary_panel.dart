@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/config/zone_names.dart';
 
 class SummaryPanel extends StatelessWidget {
   const SummaryPanel({super.key});
@@ -70,7 +71,7 @@ class SummaryPanel extends StatelessWidget {
             _SummaryRow(
               icon: LucideIcons.building2,
               label: 'Most Noisy Dept',
-              value: 'Engineering',
+              value: ZoneNames.zone3,
               color: AppColors.textPrimary,
             ),
             _SummaryRow(

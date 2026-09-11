@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import '../../domain/entities/zone_snapshot.dart';
+import '../../config/zone_names.dart';
 import '../../domain/repositories/telemetry_repository.dart';
 import '../../domain/value_objects/noise_level.dart';
 
@@ -20,9 +21,9 @@ class MockTelemetryRepository implements TelemetryRepository {
   List<ZoneSnapshot> _buildSnapshots() {
     final now = DateTime.now();
     final zones = [
-      (id: 'it', name: 'IT Zone'),
-      (id: 'cs', name: 'CS Zone'),
-      (id: 'eng', name: 'Engineering Zone'),
+      (id: 'it', name: ZoneNames.zone1),
+      (id: 'cs', name: ZoneNames.zone2),
+      (id: 'eng', name: ZoneNames.zone3),
     ];
 
     return zones.map((zone) {
@@ -126,4 +127,3 @@ class MockTelemetryRepository implements TelemetryRepository {
     }
   }
 }
-
